@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REGISTER PUS</title>
+
+  <link rel="icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/1qeuhe1qzmK57wYFa763P4hdyDRA2BMHd">
+
+
+  <style>
+    /* Reset CSS dasar */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* Mencegah double scrollbar */
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+    }
+
+    /* Container Layar Loading */
+    .loading-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #4a5568;
+      z-index: 1;
+    }
+
+    /* Styling Ikon Spinner Font Awesome */
+    .loading-icon {
+      font-size: 3rem;
+      color: #3182ce;
+      margin-bottom: 12px;
+    }
+
+    .loading-container p {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    /* iFrame Full Screen */
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: 2; /* Menutupi layar loading setelah iFrame berhasil memuat halaman */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loading-container">
+    <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
+    <p>Memuat aplikasi...</p>
+  </div>
+
+  <iframe 
+    src="https://script.google.com/macros/s/AKfycbxlZGJAw32o5uQy9BTYZknc9_zaIbUf_bsYnss9u_S8E0cTPa003IHOfXZbSvpUTK_-Og/exec" 
+    allow="geolocation; microphone; camera">
+  </iframe>
+
+</body>
+</html>
