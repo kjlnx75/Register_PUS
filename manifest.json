@@ -1,0 +1,22 @@
+{
+  "name": "REGISTER PUS",
+  "short_name": "R/I/PUS",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3182ce",
+  "icons": [
+    {
+      "src": "https://i.ibb.co.com/xt0D67Y2/Logo3.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.ibb.co.com/QFp6rq8R/Logo2.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
