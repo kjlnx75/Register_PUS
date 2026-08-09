@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register PUS</title>
+  <title>REGISTER PUS</title>
+
+  <link rel="icon" type="image/x-icon" href="https://i.ibb.co.com/8g7KFQsy/Logo2.png">
+
+
   <style>
     /* Reset CSS dasar */
     * {
@@ -20,33 +24,30 @@
       background-color: #f4f6f9;
     }
 
-    /* Tampilan saat aplikasi sedang dimuat */
+    /* Container Layar Loading */
     .loading-container {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      color: #555;
+      color: #4a5568;
       z-index: 1;
     }
 
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 10px auto;
+    /* Styling Ikon Spinner Font Awesome */
+    .loading-icon {
+      font-size: 3rem;
+      color: #3182ce;
+      margin-bottom: 12px;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .loading-container p {
+      font-size: 1rem;
+      font-weight: 500;
     }
 
-    /* Container iFrame agar responsif penuh */
+    /* iFrame Full Screen */
     iframe {
       position: absolute;
       top: 0;
@@ -54,19 +55,17 @@
       width: 100%;
       height: 100%;
       border: none;
-      z-index: 2; /* Menutupi loading setelah dimuat */
+      z-index: 2; /* Menutupi layar loading setelah iFrame berhasil memuat halaman */
     }
   </style>
 </head>
 <body>
 
-  <!-- Spinner Loading -->
   <div class="loading-container">
-    <div class="spinner"></div>
+    <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
     <p>Memuat aplikasi...</p>
   </div>
 
-  <!-- iFrame Google Apps Script -->
   <iframe 
     src="https://script.google.com/macros/s/AKfycbxlZGJAw32o5uQy9BTYZknc9_zaIbUf_bsYnss9u_S8E0cTPa003IHOfXZbSvpUTK_-Og/exec" 
     allow="geolocation; microphone; camera">
