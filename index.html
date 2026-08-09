@@ -3,11 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>REGISTER PUS</title>
-
-  <link rel="icon" type="image/x-icon" href="https://lh3.googleusercontent.com/d/1qeuhe1qzmK57wYFa763P4hdyDRA2BMHd">
-
-
+  <title>Register PUS</title>
   <style>
     /* Reset CSS dasar */
     * {
@@ -24,30 +20,33 @@
       background-color: #f4f6f9;
     }
 
-    /* Container Layar Loading */
+    /* Tampilan saat aplikasi sedang dimuat */
     .loading-container {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      color: #4a5568;
+      color: #555;
       z-index: 1;
     }
 
-    /* Styling Ikon Spinner Font Awesome */
-    .loading-icon {
-      font-size: 3rem;
-      color: #3182ce;
-      margin-bottom: 12px;
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px auto;
     }
 
-    .loading-container p {
-      font-size: 1rem;
-      font-weight: 500;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    /* iFrame Full Screen */
+    /* Container iFrame agar responsif penuh */
     iframe {
       position: absolute;
       top: 0;
@@ -55,17 +54,19 @@
       width: 100%;
       height: 100%;
       border: none;
-      z-index: 2; /* Menutupi layar loading setelah iFrame berhasil memuat halaman */
+      z-index: 2; /* Menutupi loading setelah dimuat */
     }
   </style>
 </head>
 <body>
 
+  <!-- Spinner Loading -->
   <div class="loading-container">
-    <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
+    <div class="spinner"></div>
     <p>Memuat aplikasi...</p>
   </div>
 
+  <!-- iFrame Google Apps Script -->
   <iframe 
     src="https://script.google.com/macros/s/AKfycbxlZGJAw32o5uQy9BTYZknc9_zaIbUf_bsYnss9u_S8E0cTPa003IHOfXZbSvpUTK_-Og/exec" 
     allow="geolocation; microphone; camera">
