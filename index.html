@@ -7421,6 +7421,7 @@ function checkAndLockKbTable() {
   async function cariPusUntukLayanan() {
     const keyword = (document.getElementById("cariPusLayananInput").value || "").trim().toUpperCase();
     const resultBox = document.getElementById("hasilPencarianPusLayanan");
+    
     if (!keyword) {
       Swal.fire("Perhatian", "Ketik nama istri, NIK, atau ID PUS untuk mencari!", "warning");
       return;
@@ -7429,25 +7430,73 @@ function checkAndLockKbTable() {
     resultBox.style.display = "block";
     resultBox.innerHTML = "<div style='padding:10px; font-size:12px; color:#64748b;'>Mencari data PUS...</div>";
 
-    const currentYear = parseInt(document.getElementById("tahun_input")?.value || new Date().getFullYear(), 10);
+    // 1. Ambil tahun dengan fallback aman ke tahun berjalan
+    let inputYear = document.getElementById("tahun_input") ? document.getElementById("tahun_input").value : "";
+    let currentYear = inputYear ? parseInt(inputYear, 10) : new Date().getFullYear();
+
     let query = db.from('data_pus').select('*').eq('tahun', currentYear);
 
-    query = query.or(`id_pus.ilike.%${keyword}%,nama_istri.ilike.%${keyword}%,nik_istri.ilike.%${keyword}%`);
+    // 2. Filter kata kunci pencarian (ID PUS, Nama Istri, NIK Istri, atau Nama Suami)
+    query = query.or(`id_pus.ilike.%${keyword}%,nama_istri.ilike.%${keyword}%,nik_istri.ilike.%${keyword}%,nama_suami.ilike.%${keyword}%`);
 
+    // 3. Filter Wilayah dengan normalisasi format digit (mendukung '5' maupun '05')
     if (isDesaRole()) {
-      query = query.eq('kode_kec', userKodeKec).eq('kode_desa', userKodeDesa);
+      const cleanKec = String(userKodeKec || "").replace(/\D/g, "");
+      const cleanDesa = String(userKodeDesa || "").replace(/\D/g, "");
+
+      if (cleanKec) {
+        query = query.or(`kode_kec.eq.${cleanKec.padStart(2, '0')},kode_kec.eq.${parseInt(cleanKec, 10)}`);
+      }
+      if (cleanDesa) {
+        query = query.or(`kode_desa.eq.${cleanDesa.padStart(4, '0')},kode_desa.eq.${parseInt(cleanDesa, 10)}`);
+      }
     } else if (isKecRole()) {
-      query = query.eq('kode_kec', userKodeKec);
+      const cleanKec = String(userKodeKec || "").replace(/\D/g, "");
+      if (cleanKec) {
+        query = query.or(`kode_kec.eq.${cleanKec.padStart(2, '0')},kode_kec.eq.${parseInt(cleanKec, 10)}`);
+      }
     }
 
-    const { data, error } = await query.limit(10);
+    let { data, error } = await query.limit(15);
+
+    // 4. Fallback Cerdas: Jika di tahun berjalan kosong, coba cari tanpa batasan tahun
+    if ((!data || data.length === 0) && !error) {
+      let fallbackQuery = db.from('data_pus').select('*')
+        .or(`id_pus.ilike.%${keyword}%,nama_istri.ilike.%${keyword}%,nik_istri.ilike.%${keyword}%,nama_suami.ilike.%${keyword}%`);
+
+      if (isDesaRole()) {
+        const cleanKec = String(userKodeKec || "").replace(/\D/g, "");
+        const cleanDesa = String(userKodeDesa || "").replace(/\D/g, "");
+        if (cleanKec) fallbackQuery = fallbackQuery.or(`kode_kec.eq.${cleanKec.padStart(2, '0')},kode_kec.eq.${parseInt(cleanKec, 10)}`);
+        if (cleanDesa) fallbackQuery = fallbackQuery.or(`kode_desa.eq.${cleanDesa.padStart(4, '0')},kode_desa.eq.${parseInt(cleanDesa, 10)}`);
+      } else if (isKecRole()) {
+        const cleanKec = String(userKodeKec || "").replace(/\D/g, "");
+        if (cleanKec) fallbackQuery = fallbackQuery.or(`kode_kec.eq.${cleanKec.padStart(2, '0')},kode_kec.eq.${parseInt(cleanKec, 10)}`);
+      }
+
+      const fallbackRes = await fallbackQuery.order('tahun', { ascending: false }).limit(15);
+      if (fallbackRes.data && fallbackRes.data.length > 0) {
+        data = fallbackRes.data;
+      }
+    }
+
     resultBox.innerHTML = "";
 
-    if (error || !data || data.length === 0) {
-      resultBox.innerHTML = "<div style='padding:10px; font-size:12px; color:#ef4444;'>Data PUS tidak ditemukan pada tahun aktif ini.</div>";
+    if (error) {
+      resultBox.innerHTML = `<div style='padding:10px; font-size:12px; color:#ef4444;'>Error pencarian: ${error.message}</div>`;
       return;
     }
 
+    if (!data || data.length === 0) {
+      resultBox.innerHTML = `
+        <div style='padding:10px; font-size:12px; color:#ef4444; text-align:center;'>
+          Data PUS dengan kata kunci "<b>${keyword}</b>" tidak ditemukan di wilayah Anda.<br>
+          <small style="color:#64748b;">Pastikan ejaan nama, NIK, atau wilayah akun sesuai.</small>
+        </div>`;
+      return;
+    }
+
+    // 5. Tampilkan hasil pencarian
     data.forEach(item => {
       const itemDiv = document.createElement("div");
       itemDiv.style.cssText = "padding: 8px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 12px;";
@@ -7455,8 +7504,8 @@ function checkAndLockKbTable() {
       itemDiv.onmouseout = () => itemDiv.style.backgroundColor = "transparent";
 
       itemDiv.innerHTML = `
-        <b>${item.nama_istri}</b> (${item.nik_istri}) - Suami: ${item.nama_suami} 
-        <br><span style="color:#0284c7;">ID: ${item.id_pus} | RT ${item.kode_rt} Dusun ${item.dusun_nama || '-'}</span>
+        <b>${item.nama_istri}</b> (${item.nik_istri || '-'}) - Suami: <b>${item.nama_suami || '-'}</b>
+        <br><span style="color:#0284c7;">Tahun: ${item.tahun} | ID: ${item.id_pus} | RT ${item.kode_rt || '-'} Dusun ${item.dusun_nama || '-'}</span>
       `;
 
       itemDiv.onclick = () => pilihPusUntukLayanan(item);
