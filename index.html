@@ -1429,7 +1429,7 @@
           <input type="text" id="cariPusLayananInput" placeholder="Ketik Nama Istri, NIK, atau ID PUS..." style="flex: 1; padding: 8px; font-size: 13px;">
           <button type="button" class="btn-action" style="padding: 8px 16px; font-size: 12px;" onclick="cariPusUntukLayanan()">🔍 Cari PUS</button>
         </div>
-        <div id="hasilPencarianPusLayanan" style="max-height: 160px; overflow-y: auto; margin-top: 8px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; display: none;"></div>
+        <div id="hasilPencarianPusLayanan" style="max-height: 240px; overflow-y: auto; margin-top: 8px; border: 1px solid #cbd5e1; border-radius: 6px; display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"></div>
       </div>
 
       <form id="formPendaftaranLayanan" onsubmit="handleSimpanPendaftaranLayanan(event)">
@@ -7453,8 +7453,10 @@ function checkAndLockKbTable() {
 }
 
   // 2. Pencarian PUS dari Database untuk Didaftarkan
+  // 2. Pencarian PUS dari Database untuk Didaftarkan (Tampilan Identik Cari PUS)
   async function cariPusUntukLayanan() {
-    const keyword = (document.getElementById("cariPusLayananInput").value || "").trim().toUpperCase();
+    const keywordInput = document.getElementById("cariPusLayananInput").value.trim();
+    const keyword = keywordInput.toUpperCase();
     const resultBox = document.getElementById("hasilPencarianPusLayanan");
     
     if (!keyword) {
@@ -7463,18 +7465,14 @@ function checkAndLockKbTable() {
     }
 
     resultBox.style.display = "block";
-    resultBox.innerHTML = "<div style='padding:10px; font-size:12px; color:#64748b;'>Mencari data PUS...</div>";
+    resultBox.innerHTML = "<div style='padding:12px; font-size:12px; color:#64748b; text-align:center;'>Mencari data PUS...</div>";
 
-    // 1. Ambil tahun dengan fallback aman ke tahun berjalan
     let inputYear = document.getElementById("tahun_input") ? document.getElementById("tahun_input").value : "";
     let currentYear = inputYear ? parseInt(inputYear, 10) : new Date().getFullYear();
 
     let query = db.from('data_pus').select('*').eq('tahun', currentYear);
-
-    // 2. Filter kata kunci pencarian (ID PUS, Nama Istri, NIK Istri, atau Nama Suami)
     query = query.or(`id_pus.ilike.%${keyword}%,nama_istri.ilike.%${keyword}%,nik_istri.ilike.%${keyword}%,nama_suami.ilike.%${keyword}%`);
 
-    // 3. Filter Wilayah dengan normalisasi format digit (mendukung '5' maupun '05')
     if (isDesaRole()) {
       const cleanKec = String(userKodeKec || "").replace(/\D/g, "");
       const cleanDesa = String(userKodeDesa || "").replace(/\D/g, "");
@@ -7494,7 +7492,7 @@ function checkAndLockKbTable() {
 
     let { data, error } = await query.limit(15);
 
-    // 4. Fallback Cerdas: Jika di tahun berjalan kosong, coba cari tanpa batasan tahun
+    // Fallback jika tahun berjalan belum terisi data
     if ((!data || data.length === 0) && !error) {
       let fallbackQuery = db.from('data_pus').select('*')
         .or(`id_pus.ilike.%${keyword}%,nama_istri.ilike.%${keyword}%,nik_istri.ilike.%${keyword}%,nama_suami.ilike.%${keyword}%`);
@@ -7518,29 +7516,50 @@ function checkAndLockKbTable() {
     resultBox.innerHTML = "";
 
     if (error) {
-      resultBox.innerHTML = `<div style='padding:10px; font-size:12px; color:#ef4444;'>Error pencarian: ${error.message}</div>`;
+      resultBox.innerHTML = `<div style='padding:12px; font-size:12px; color:#ef4444; text-align:center;'>Gagal memuat: ${error.message}</div>`;
       return;
     }
 
     if (!data || data.length === 0) {
       resultBox.innerHTML = `
-        <div style='padding:10px; font-size:12px; color:#ef4444; text-align:center;'>
-          Data PUS dengan kata kunci "<b>${keyword}</b>" tidak ditemukan di wilayah Anda.<br>
-          <small style="color:#64748b;">Pastikan ejaan nama, NIK, atau wilayah akun sesuai.</small>
+        <div style='padding:15px; font-size:12.5px; color:#ef4444; text-align:center;'>
+          Data PUS dengan kata kunci "<b>${keywordInput}</b>" tidak ditemukan.
         </div>`;
       return;
     }
 
-    // 5. Tampilkan hasil pencarian
+    // Render kartu hasil pencarian persis format kartu Cari PUS
     data.forEach(item => {
+      const hlId = highlightText(item.id_pus, keywordInput);
+      const hlIstri = highlightText(item.nama_istri, keywordInput);
+      const hlNikIstri = highlightText(item.nik_istri, keywordInput);
+      const hlSuami = highlightText(item.nama_suami, keywordInput);
+      const hlNikSuami = highlightText(item.nik_suami, keywordInput);
+
       const itemDiv = document.createElement("div");
-      itemDiv.style.cssText = "padding: 8px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 12px;";
-      itemDiv.onmouseover = () => itemDiv.style.backgroundColor = "#f8fafc";
-      itemDiv.onmouseout = () => itemDiv.style.backgroundColor = "transparent";
+      itemDiv.className = "search-result-item";
+      itemDiv.style.cssText = "padding: 10px 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.2s; background: #ffffff;";
+      
+      itemDiv.onmouseover = () => itemDiv.style.backgroundColor = "#f1f5f9";
+      itemDiv.onmouseout = () => itemDiv.style.backgroundColor = "#ffffff";
 
       itemDiv.innerHTML = `
-        <b>${item.nama_istri}</b> (${item.nik_istri || '-'}) - Suami: <b>${item.nama_suami || '-'}</b>
-        <br><span style="color:#0284c7;">Tahun: ${item.tahun} | ID: ${item.id_pus} | RT ${item.kode_rt || '-'} Dusun ${item.dusun_nama || '-'}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span style="font-weight: bold; color: #1f4e78; font-size: 13px; display: flex; align-items: center; gap: 4px;">
+            <span style="background: #7c3aed; color: #ffffff; font-size: 10px; font-weight: 800; padding: 1px 4px; border-radius: 3px;">ID</span>
+            ${hlId} (${item.tahun})
+          </span>
+          <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 7px; border-radius: 4px; font-weight: bold;">
+            RT ${item.kode_rt || '-'} / DSN ${item.dusun_nama || '-'}
+          </span>
+        </div>
+        <div style="font-size: 12.5px; color: #334155; line-height: 1.45;">
+          🧕 <b>Istri:</b> ${hlIstri} <span style="font-family: monospace; color: #64748b;">(${hlNikIstri})</span><br>
+          👱 <b>Suami:</b> ${hlSuami} <span style="font-family: monospace; color: #64748b;">(${hlNikSuami})</span>
+        </div>
+        <div style="font-size: 11px; color: #94a3b8; margin-top: 3px;">
+          📍 Kec. ${item.kecamatan_nama || '-'} | Desa ${item.desa_nama || '-'}
+        </div>
       `;
 
       itemDiv.onclick = () => pilihPusUntukLayanan(item);
