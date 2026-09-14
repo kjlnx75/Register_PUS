@@ -1533,7 +1533,7 @@
 
         <!-- TOMBOL AKSI -->
         <div style="display: flex; gap: 10px;">
-          <button type="submit" id="btnSimpanPendaftaranLayanan" class="btn-submit" style="margin-top: 0; flex: 2; background-color: #0284c7; padding: 13px; font-size: 14px;">
+          <button type="submit" id="btnSimpanPendaftaranLayanan" class="btn-submit" style="margin-top: 0; flex: 2; background-color: #0284c7; padding: 13px; font-size: 14px; cursor: pointer;">
             💾 DAFTARKAN CALON AKSEPTOR
           </button>
           <button type="button" class="btn-nav btn-secondary" style="flex: 1; justify-content: center; padding: 13px; font-size: 14px;" onclick="resetFormPendaftaranLayanan()">
@@ -7335,16 +7335,13 @@ function showDashboardView() {
   function openPelayananKbModal() {
     document.getElementById("modalPelayananKb").style.display = "block";
     switchLayananTab('antrean');
-    
+
+    // Kosongkan form dan pastikan box kader kosong bersih
+    resetFormPendaftaranLayanan();
+
     const currentMonth = new Date().getMonth() + 1;
     const blnEl = document.getElementById("reg_bulan_rencana");
     if (blnEl) blnEl.value = String(currentMonth);
-
-    // Otomatis isi dengan nama lengkap pengguna atau username akun yang login
-    const kaderInput = document.getElementById("reg_nama_kader");
-    if (kaderInput && !kaderInput.value) {
-      kaderInput.value = (currentNamaLengkap || currentUser || "").toUpperCase();
-    }
   }
 
   function resetFormPendaftaranLayanan() {
@@ -7354,20 +7351,20 @@ function showDashboardView() {
     document.getElementById("reg_kode_kec").value = "";
     document.getElementById("reg_kode_desa").value = "";
     document.getElementById("reg_kode_dusun").value = "";
+    document.getElementById("reg_nama_istri").value = "";
+    document.getElementById("reg_nik_istri").value = "";
+    document.getElementById("reg_nama_suami").value = "";
     document.getElementById("reg_info_wilayah").value = "";
     document.getElementById("cariPusLayananInput").value = "";
     document.getElementById("hasilPencarianPusLayanan").style.display = "none";
     document.getElementById("hasilPencarianPusLayanan").innerHTML = "";
+    
+    const kaderInput = document.getElementById("reg_nama_kader");
+    if (kaderInput) kaderInput.value = "";
 
     const currentMonth = new Date().getMonth() + 1;
     const blnEl = document.getElementById("reg_bulan_rencana");
     if (blnEl) blnEl.value = String(currentMonth);
-
-    // Setel ulang nama kader ke pengguna yang login
-    const kaderInput = document.getElementById("reg_nama_kader");
-    if (kaderInput) {
-      kaderInput.value = (currentNamaLengkap || currentUser || "").toUpperCase();
-    }
   }
 
   function closePelayananKbModal() {
@@ -7641,18 +7638,52 @@ function showDashboardView() {
   async function handleSimpanPendaftaranLayanan(event) {
     event.preventDefault();
 
-    const idPus = document.getElementById("reg_id_pus").value;
-    if (!idPus) {
-      Swal.fire("Perhatian", "Silakan cari dan pilih data PUS terlebih dahulu pada Langkah 1!", "warning");
-      return;
+    const errors = [];
+
+    // Validasi Bagian 1: Identitas Calon Akseptor
+    const idPus = (document.getElementById("reg_id_pus")?.value || "").trim();
+    const namaIstri = (document.getElementById("reg_nama_istri")?.value || "").trim();
+    const nikIstri = (document.getElementById("reg_nik_istri")?.value || "").trim();
+
+    if (!idPus || !namaIstri || !nikIstri) {
+      errors.push("Calon Akseptor belum dipilih (Lakukan pencarian dan klik salah satu PUS pada Langkah 1)");
     }
 
-    const namaKaderVal = (document.getElementById("reg_nama_kader").value || "").trim().toUpperCase();
-    if (!namaKaderVal) {
-      Swal.fire("Perhatian", "Nama Kader pendamping wajib diisi!", "warning");
-      return;
+    // Validasi Bagian 2: Rencana Pelayanan & Tindakan KB
+    const rencanaMetode = (document.getElementById("reg_rencana_metode")?.value || "").trim();
+    const bulanRencana = (document.getElementById("reg_bulan_rencana")?.value || "").trim();
+    const namaKader = (document.getElementById("reg_nama_kader")?.value || "").trim();
+
+    if (!rencanaMetode) {
+      errors.push("Metode Kontrasepsi belum dipilih");
+    }
+    if (!bulanRencana) {
+      errors.push("Bulan Pelayanan belum dipilih");
+    }
+    if (!namaKader) {
+      errors.push("Nama Kader / Petugas Pendamping wajib diisi");
     }
 
+    // Jika ada bagian yang belum terisi, jangan simpan dan munculkan peringatan
+    if (errors.length > 0) {
+      const errorListHtml = errors.map(err => `<li style="margin-bottom: 5px;">${err}</li>`).join("");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Form Belum Lengkap!',
+        html: `
+          <div style="text-align: left; font-size: 13px; color: #333;">
+            <p style="margin-bottom: 8px;">Silakan lengkapi bagian berikut sebelum menyimpan pendaftaran:</p>
+            <ul style="margin: 0; padding-left: 20px; color: #dc2626; font-weight: 600;">
+              ${errorListHtml}
+            </ul>
+          </div>
+        `,
+        confirmButtonColor: '#0284c7'
+      });
+      return; // Batalkan proses simpan
+    }
+
+    // Jika semua bagian sudah lengkap, lanjutkan proses simpan ke database
     const btn = document.getElementById("btnSimpanPendaftaranLayanan");
     btn.disabled = true;
     btn.innerText = "Mendaftarkan...";
@@ -7660,17 +7691,17 @@ function showDashboardView() {
     const payload = {
       id_pus: idPus,
       tahun: parseInt(document.getElementById("reg_tahun").value, 10),
-      bulan_rencana: parseInt(document.getElementById("reg_bulan_rencana").value, 10),
+      bulan_rencana: parseInt(bulanRencana, 10),
       tgl_rencana_layanan: document.getElementById("reg_tgl_rencana").value || null,
-      nama_istri: document.getElementById("reg_nama_istri").value,
-      nik_istri: document.getElementById("reg_nik_istri").value,
+      nama_istri: namaIstri,
+      nik_istri: nikIstri,
       nama_suami: document.getElementById("reg_nama_suami").value,
       kode_kec: document.getElementById("reg_kode_kec").value,
       kode_desa: document.getElementById("reg_kode_desa").value,
       kode_dusun: document.getElementById("reg_kode_dusun").value,
-      rencana_metode: document.getElementById("reg_rencana_metode").value,
+      rencana_metode: rencanaMetode,
       faskes_tujuan: document.getElementById("reg_faskes_tujuan").value.trim() || null,
-      nama_kader: namaKaderVal, // <-- Kolom nama kader
+      nama_kader: namaKader.toUpperCase(),
       catatan: document.getElementById("reg_catatan").value.trim() || null,
       status: 'TERDAFTAR',
       created_by: currentUser || "Kader"
@@ -7683,7 +7714,7 @@ function showDashboardView() {
       Swal.fire({
         icon: 'success',
         title: 'Calon Akseptor Terdaftar!',
-        text: `PUS [${payload.nama_istri}] berhasil didaftarkan oleh Kader ${namaKaderVal}.`,
+        text: `PUS [${payload.nama_istri}] berhasil didaftarkan oleh Kader ${payload.nama_kader}.`,
         timer: 1600,
         showConfirmButton: false
       });
