@@ -4905,17 +4905,18 @@ function showDashboardView() {
       doc.setFont(undefined, 'normal');
       doc.setTextColor(100);
       doc.text(`Tingkat: ${tingkat.toUpperCase()} | Periode: ${namaBulan} ${tahun} | Waktu Ekspor: ${new Date().toLocaleString('id-ID')}`, 40, 75);
+      
+      const getVal = (id) => document.getElementById(id)?.innerText || "0";
 
-      // Kotak KPI Card
       const kpis = [
-        { title: "Total PUS", val: document.getElementById("kpiTotalPus").innerText, sub: "Pasangan Usia Subur" },
-        { title: "Akseptor KB Aktif", val: document.getElementById("kpiCpr").innerText, sub: document.getElementById("kpiTotalKb").innerText },
-        { title: "Akseptor KB Baru", val: document.getElementById("kpiKbBaru").innerText, sub: document.getElementById("kpiKbBaruSub").innerText },
-        { title: "Capaian MKJP", val: document.getElementById("kpiMkjpRate").innerText, sub: document.getElementById("kpiMkjpSub").innerText },
-        { title: "Ganti Cara", val: document.getElementById("kpiGantiCara").innerText, sub: "Metode Kontrasepsi" },
-        { title: "Unmet Need", val: document.getElementById("kpiUnmetRate").innerText, sub: document.getElementById("kpiTotalUnmet").innerText },
-        { title: "Hamil Baru", val: document.getElementById("kpiHamilBaru").innerText, sub: document.getElementById("kpiHamilBaruSub").innerText },
-        { title: "Bukan PUS", val: document.getElementById("kpiTotalNonPus").innerText, sub: document.getElementById("kpiTotalNonPusSub").innerText }
+        { title: "Total PUS", val: getVal("kpiTotalPus"), sub: "Pasangan Usia Subur" },
+        { title: "Akseptor KB Aktif", val: getVal("kpiCpr"), sub: getVal("kpiTotalKb") },
+        { title: "Akseptor KB Baru", val: getVal("kpiKbBaru"), sub: getVal("kpiKbBaruSub") },
+        { title: "Capaian MKJP", val: getVal("kpiMkjpRate"), sub: getVal("kpiMkjpSub") },
+        { title: "Ganti Cara", val: getVal("kpiGantiCara"), sub: "Metode Kontrasepsi" },
+        { title: "Unmet Need", val: getVal("kpiUnmetRate"), sub: getVal("kpiTotalUnmet") },
+        { title: "Hamil Baru", val: getVal("kpiHamilBaru"), sub: getVal("kpiHamilBaruSub") },
+        { title: "Bukan PUS", val: getVal("kpiTotalNonPus"), sub: getVal("kpiTotalNonPusSub") }
       ];
 
       let kpiX = 40;
@@ -7080,12 +7081,21 @@ function showDashboardView() {
         if (payloadList.length === 0) {
           btn.disabled = false;
           btn.innerText = "🚀 UPLOAD KE DATABASE";
-          Swal.fire({
-            icon: 'warning',
-            title: 'Tidak Ada Data Baru',
-            html: `Seluruh baris (${lastSkippedRowsData.length}) dilewati karena NIK Istri ganda di file atau sudah terdaftar aktif di database.${buildSkippedHtml()}`,
-            showConfirmButton: true
-          });
+          if (lastSkippedRowsData.length > 0) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Tidak Ada Data Baru',
+              html: `Seluruh baris (${lastSkippedRowsData.length}) dilewati karena NIK Istri ganda di file atau sudah terdaftar aktif di database.${buildSkippedHtml()}`,
+              showConfirmButton: true
+            });
+          } else {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Data Kosong / Tidak Valid',
+              text: 'Tidak ada baris data valid yang dapat diproses dari file Excel tersebut.',
+              showConfirmButton: true
+            });
+          }
           return;
         }
 
@@ -7538,7 +7548,6 @@ function showDashboardView() {
           <span style="font-weight:bold; color:#0284c7; font-size:12px;">${item.rencana_metode}</span>
           ${item.jenis_akseptor ? `<br><span style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:1px 5px; border-radius:3px; font-size:10px; font-weight:700;">${item.jenis_akseptor}</span>` : ''}
         </td>
-        
         <td style="text-align:center;">
           <b>${monthNames[(item.bulan_rencana || 1) - 1]} ${itemYear}</b>
           ${item.tgl_rencana_layanan ? `<br><small style="color:#64748b;">${item.tgl_rencana_layanan}</small>` : ''}
