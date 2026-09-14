@@ -7505,46 +7505,40 @@ function checkAndLockKbTable() {
       query = query.eq('status', statusFilter);
     }
 
-    // 2. Filter Level Kecamatan
+    // 2. Filter Wilayah Tingkat Kabupaten / Kecamatan
     if (isDesaRole() || isKecRole()) {
       query = query.eq('kode_kec', String(userKodeKec).padStart(2, '0'));
     } else {
+      // Role Admin Kabupaten:
       const selKec = document.getElementById("filterExpLayananKec")?.value;
-      if (selKec) query = query.eq('kode_kec', String(selKec).padStart(2, '0'));
+      if (selKec) {
+        // Jika memilih salah satu kecamatan
+        query = query.eq('kode_kec', String(selKec).padStart(2, '0'));
+      } else {
+        // Jika -- SEMUA KECAMATAN --, ikat ke kabupaten akunnya jika ada
+        if (userKodeKab) {
+          query = query.eq('kode_kab', String(userKodeKab).padStart(2, '0'));
+        }
+      }
     }
 
     // 3. Filter Level Desa
     if (isDesaRole()) {
       query = query.eq('kode_desa', String(userKodeDesa).padStart(4, '0'));
     } else {
-      const allDesaBoxes = document.querySelectorAll('input[name="cb_layanan_desa"]');
-      if (allDesaBoxes.length > 0) {
-        const checkedDesa = Array.from(document.querySelectorAll('input[name="cb_layanan_desa"]:checked')).map(cb => String(cb.value).padStart(4, '0'));
-        if (checkedDesa.length > 0) {
-          query = query.in('kode_desa', checkedDesa);
-        } else {
-          // Jika checkbox ada tapi sengaja di-uncheck semua, tampilkan kosong
-          cachedAntreanLayanan = [];
-          renderAntreanLayananTable();
-          return;
-        }
+      const checkedDesa = Array.from(document.querySelectorAll('input[name="cb_layanan_desa"]:checked')).map(cb => String(cb.value).padStart(4, '0'));
+      // Jika dicentang -> ambil desa terpilih
+      // Jika kosong -> ambil seluruh desa di bawah kecamatan/kabupaten tersebut
+      if (checkedDesa.length > 0) {
+        query = query.in('kode_desa', checkedDesa);
       }
     }
 
     // 4. Filter Level Dusun
-    const allDusunBoxes = document.querySelectorAll('input[name="cb_layanan_dusun"]');
-    if (allDusunBoxes.length > 0) {
-      const checkedDusun = Array.from(document.querySelectorAll('input[name="cb_layanan_dusun"]:checked')).map(cb => String(cb.value).padStart(4, '0'));
-      if (checkedDusun.length > 0) {
-        query = query.in('kode_dusun', checkedDusun);
-      } else {
-        // Jika checkbox dusun ada tapi di-uncheck semua, tampilkan kosong
-        cachedAntreanLayanan = [];
-        renderAntreanLayananTable();
-        return;
-      }
+    const checkedDusun = Array.from(document.querySelectorAll('input[name="cb_layanan_dusun"]:checked')).map(cb => String(cb.value).padStart(4, '0'));
+    if (checkedDusun.length > 0) {
+      query = query.in('kode_dusun', checkedDusun);
     } else if (isDesaRole() && userKodeDusunList && userKodeDusunList.length > 0) {
-      // Proteksi bawaan role User Desa jika checkbox dusun belum dirender
       query = query.in('kode_dusun', userKodeDusunList);
     }
 
@@ -7557,7 +7551,6 @@ function checkAndLockKbTable() {
 
     cachedAntreanLayanan = data;
 
-    // Perbarui Badge Antrean
     const pendingCount = data.filter(d => d.status === 'TERDAFTAR').length;
     const badge = document.getElementById("badgeAntreanLayanan");
     if (badge) {
@@ -8217,21 +8210,31 @@ function checkAndLockKbTable() {
 
     if (isDesaRole()) {
       cKec.style.display = "none";
-      // User Desa langsung merender dusun hak aksesnya
       renderLayananDusunCheckboxes(userKodeKec, userKodeDesa);
     } else if (isKecRole()) {
       cKec.style.display = "none";
-      // Admin Kec langsung merender checkbox desa di kecamatannya
       renderLayananDesaCheckboxes(userKodeKec);
     } else {
-      // Admin Kab menampilkan dropdown kecamatan
+      // Admin Kabupaten: Tampilkan dropdown kecamatan
       cKec.style.display = "block";
-      selKec.innerHTML = '<option value="">-- SEMUA KECAMATAN --</option>';
-      for (let kab in dataKecamatan) {
-        for (let kd in dataKecamatan[kab]) {
-          selKec.add(new Option(dataKecamatan[kab][kd].toUpperCase(), String(kd).padStart(2, '0')));
+      selKec.innerHTML = '<option value="" selected>-- SEMUA KECAMATAN --</option>';
+
+      // Muat kecamatan khusus kabupaten akun tersebut
+      const addedKec = {};
+      for (let kdKab in dataKecamatan) {
+        if (!userKodeKab || kdKab === userKodeKab) {
+          for (let kd in dataKecamatan[kdKab]) {
+            let cleanKd = String(kd).padStart(2, '0');
+            if (!addedKec[cleanKd]) {
+              addedKec[cleanKd] = true;
+              selKec.add(new Option(dataKecamatan[kdKab][kd].toUpperCase(), cleanKd));
+            }
+          }
         }
       }
+      
+      // Muat seluruh antrean se-kabupaten secara default
+      loadAntreanLayananTable();
     }
   }
 
@@ -8269,8 +8272,9 @@ function checkAndLockKbTable() {
       const cleanKd = String(kd).padStart(4, '0');
       const label = document.createElement("label");
       label.style.cssText = "display: flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; color: #334155;";
+      // DIBUAT KOSONG (tanpa atribut checked)
       label.innerHTML = `
-        <input type="checkbox" name="cb_layanan_desa" value="${cleanKd}" checked onchange="onLayananDesaCheckboxChange('${cleanKec}')" style="accent-color: #0284c7;">
+        <input type="checkbox" name="cb_layanan_desa" value="${cleanKd}" onchange="onLayananDesaCheckboxChange('${cleanKec}')" style="accent-color: #0284c7;">
         <span>${desas[kd]}</span>
       `;
       grid.appendChild(label);
@@ -8308,7 +8312,6 @@ function checkAndLockKbTable() {
     for (let kd in dsnMap) {
       let cleanKd = String(kd).padStart(4, '0');
 
-      // Proteksi User Desa: Hanya tampilkan dusun yang diizinkan
       if (isDesaRole() && userKodeDusunList && userKodeDusunList.length > 0) {
         if (!userKodeDusunList.includes(cleanKd)) {
           continue;
@@ -8317,8 +8320,9 @@ function checkAndLockKbTable() {
 
       const label = document.createElement("label");
       label.style.cssText = "display: flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; color: #334155;";
+      // DIBUAT KOSONG (tanpa atribut checked)
       label.innerHTML = `
-        <input type="checkbox" name="cb_layanan_dusun" value="${cleanKd}" checked onchange="loadAntreanLayananTable()" style="accent-color: #0284c7;">
+        <input type="checkbox" name="cb_layanan_dusun" value="${cleanKd}" onchange="loadAntreanLayananTable()" style="accent-color: #0284c7;">
         <span>${dsnMap[kd].nama}</span>
       `;
       grid.appendChild(label);
