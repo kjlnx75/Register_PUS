@@ -7454,7 +7454,7 @@ function checkAndLockKbTable() {
       let aksiHtml = "-";
       if (item.status === 'TERDAFTAR') {
         aksiHtml = `
-          <button type="button" class="btn-nav btn-action" style="padding: 4px 8px; font-size: 11px; background-color:#16a34a;" onclick="promptSelesaikanPelayanan('${item.id}', '${item.id_pus}', ${item.tahun}, ${item.bulan_rencana}, '${item.rencana_metode}', '${item.nama_istri}')" title="Catat Tindakan Selesai">
+          <button type="button" class="btn-nav btn-action" style="padding: 4px 8px; font-size: 11px; background-color:#16a34a;" onclick="promptSelesaikanPelayanan('${item.id}', '${item.id_pus}', ${item.tahun || new Date().getFullYear()}, ${item.bulan_rencana || 1}, '${item.rencana_metode || ''}', '${(item.nama_istri || '').replace(/'/g, \"\\\\'\")}')" title="Catat Tindakan Selesai">
             💉 Layani
           </button>
           <button type="button" class="btn-nav btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="batalkanAntreanLayanan('${item.id}', '${item.nama_istri}')" title="Batalkan Pendaftaran">
