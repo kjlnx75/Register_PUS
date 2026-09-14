@@ -7604,7 +7604,7 @@ function checkAndLockKbTable() {
   let pusTerpilihDataLayanan = null;
 
   function pilihPusUntukLayanan(item) {
-    pusTerpilihDataLayanan = item; // Simpan objek data PUS
+    pusTerpilihDataLayanan = item;
 
     const resultBox = document.getElementById("hasilPencarianPusLayanan");
     if (resultBox) resultBox.style.display = "none";
@@ -7622,24 +7622,39 @@ function checkAndLockKbTable() {
     document.getElementById("reg_nama_suami").value = item.nama_suami || "";
     document.getElementById("reg_info_wilayah").value = `Kec. ${item.kecamatan_nama || '-'}, Desa ${item.desa_nama || '-'}, Dusun ${item.dusun_nama || '-'} (RT ${item.kode_rt || '-'})`;
 
-    // Jalankan deteksi jenis akseptor langsung saat PUS dipilih
-    evaluasiOtomatisJenisAkseptor();
+    // Kosongkan metode & jenis akseptor terlebih dahulu
+    document.getElementById("reg_rencana_metode").value = "";
+    document.getElementById("reg_jenis_akseptor").value = "";
+    const infoText = document.getElementById("infoRiwayatKb");
+    if (infoText) infoText.innerText = "Silakan pilih metode kontrasepsi di samping...";
   }
 
   // 2. Fungsi Deteksi Cerdas Jenis Akseptor
   function evaluasiOtomatisJenisAkseptor() {
-    if (!pusTerpilihDataLayanan) return;
-
     const jenisSelect = document.getElementById("reg_jenis_akseptor");
     const infoText = document.getElementById("infoRiwayatKb");
     if (!jenisSelect) return;
 
     const metodeBaru = (document.getElementById("reg_rencana_metode")?.value || "").trim().toUpperCase();
-    const bulanRencana = parseInt(document.getElementById("reg_bulan_rencana")?.value || (new Date().getMonth() + 1), 10);
 
+    // KUNCI UTAMA: Jika metode kontrasepsi belum dipilih, jangan isi jenis akseptor
+    if (!metodeBaru) {
+      jenisSelect.value = "";
+      if (infoText) infoText.innerText = "";
+      return;
+    }
+
+    // Jika calon PUS belum dipilih
+    if (!pusTerpilihDataLayanan) {
+      jenisSelect.value = "";
+      if (infoText) infoText.innerText = "⚠️ Pilih calon PUS terlebih dahulu pada Langkah 1.";
+      return;
+    }
+
+    const bulanRencana = parseInt(document.getElementById("reg_bulan_rencana")?.value || (new Date().getMonth() + 1), 10);
     const mKeys = ["kb_jan", "kb_feb", "kb_mar", "kb_apr", "kb_mei", "kb_jun", "kb_jul", "kb_agu", "kb_sep", "kb_okt", "kb_nov", "kb_des"];
 
-    // A. Cari status terakhir yang terisi sebelum bulan rencana (mundur dari bulanRencana - 2)
+    // Cari status terakhir yang terisi sebelum bulan rencana
     let statusTerakhirRaw = "";
     for (let i = bulanRencana - 2; i >= 0; i--) {
       let val = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
@@ -7649,7 +7664,7 @@ function checkAndLockKbTable() {
       }
     }
 
-    // Jika sebelum bulan rencana belum ada data sama sekali (misal daftar di Januari), cek bulan-bulan setelahnya untuk melihat apakah ada data riwayat
+    // Jika sebelum bulan rencana belum ada data, cari di seluruh bulan
     if (!statusTerakhirRaw) {
       for (let i = 0; i < 12; i++) {
         let val = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
@@ -7660,7 +7675,7 @@ function checkAndLockKbTable() {
       }
     }
 
-    // B. Cek apakah pernah ber-KB di bulan-bulan sebelumnya
+    // Cek apakah pernah ber-KB sebelumnya
     let pernahKbSebelumnya = false;
     for (let i = 0; i < 12; i++) {
       let val = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
@@ -7671,7 +7686,7 @@ function checkAndLockKbTable() {
       }
     }
 
-    // C. Klasifikasi Jenis Akseptor
+    // Klasifikasi jenis akseptor
     let hasilDeteksi = "KB BARU (MURNI)";
     let keterangan = statusTerakhirRaw ? `Status riwayat: ${statusTerakhirRaw}` : "Belum ada riwayat KB tercatat";
 
@@ -7679,8 +7694,7 @@ function checkAndLockKbTable() {
       const parsed = evaluateKbStatus(statusTerakhirRaw);
 
       if (parsed.type === "PESERTA_KB") {
-        // Jika metode yang dipilih sama persis dengan metode sebelumnya
-        if (metodeBaru && metodeBaru === parsed.method) {
+        if (metodeBaru === parsed.method) {
           hasilDeteksi = "KB ULANGAN";
         } else {
           hasilDeteksi = "GANTI CARA";
@@ -7696,7 +7710,7 @@ function checkAndLockKbTable() {
       }
     }
 
-    // Pasang hasil ke dropdown
+    // Isi dropdown jenis akseptor otomatis
     jenisSelect.value = hasilDeteksi;
 
     if (infoText) {
