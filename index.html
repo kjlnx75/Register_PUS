@@ -1391,22 +1391,63 @@
 
     <!-- TAB 1: DAFTAR ANTREAN & REALISASI LAYANAN -->
     <div id="layananTabAntrean" style="display: block;">
-      <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px;">
         
-        <!-- BARIS 1: FILTER STATUS & TOMBOL SEGAR KAN -->
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <span style="font-size: 12px; font-weight: bold; color: #475569;">Pilih Data:</span>
-          <select id="filterStatusLayanan" onchange="loadAntreanLayananTable()" style="padding: 6px 10px; font-size: 12px; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: bold; flex: 1; min-width: 180px;">
-            <option value="TERDAFTAR" selected>Calon Akseptor</option>
-            <option value="SELESAI">Akseptor Terlayani</option>
-            <option value="BATAL">Batal</option>
-            <option value="SEMUA">Semua Status</option>
-          </select>
-          <button type="button" class="btn-nav btn-secondary" style="padding: 6px 12px; font-size: 11px;" onclick="loadAntreanLayananTable()">🔄 Segarkan</button>
+        <!-- BARIS 1: FILTER STATUS & KECAMATAN (KHUSUS ADMIN KAB) -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 180px;">
+            <label style="font-size: 11px; font-weight: bold; color: #475569; text-transform: uppercase;">Pilih Data:</label>
+            <select id="filterStatusLayanan" onchange="loadAntreanLayananTable()" style="padding: 7px; font-size: 12px; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: bold; width: 100%;">
+              <option value="TERDAFTAR" selected>Calon Akseptor (Terdaftar)</option>
+              <option value="SELESAI">Pelayanan KB (Selesai Dilayani)</option>
+              <option value="BATAL">Batal</option>
+              <option value="SEMUA">Semua Status</option>
+            </select>
+          </div>
+
+          <!-- Dropdown Kecamatan (Hanya muncul jika Admin Kab) -->
+          <div id="filterExpLayananKecContainer" style="display: none; flex: 1; min-width: 180px;">
+            <label style="font-size: 11px; font-weight: bold; color: #475569; text-transform: uppercase;">Kecamatan:</label>
+            <select id="filterExpLayananKec" onchange="onLayananKecChange()" style="padding: 7px; font-size: 12px; border-radius: 4px; border: 1px solid #cbd5e1; width: 100%;">
+              <option value="">-- SEMUA KECAMATAN --</option>
+            </select>
+          </div>
+
+          <div style="align-self: flex-end;">
+            <button type="button" class="btn-nav btn-secondary" style="padding: 7px 12px; font-size: 12px;" onclick="loadAntreanLayananTable()">🔄 Segarkan</button>
+          </div>
         </div>
 
-        <!-- BARIS 2: TOMBOL DOWNLOAD EXCEL & PDF (PASTI TERLIHAT) -->
-        <div style="display: flex; gap: 8px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+        <!-- BARIS 2: CHECKBOX FILTER DESA -->
+        <div id="filterExpLayananDesaWrapper" style="display: none; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: bold; color: #0369a1; text-transform: uppercase;">Pilih Desa untuk Ekspor / Tampilan:</span>
+            <div style="display: flex; gap: 5px;">
+              <button type="button" onclick="toggleAllLayananCheckboxes('cb_layanan_desa', true)" style="font-size: 10px; padding: 2px 6px; cursor: pointer; border-radius: 3px; border: 1px solid #cbd5e1; background: #fff;">Pilih Semua</button>
+              <button type="button" onclick="toggleAllLayananCheckboxes('cb_layanan_desa', false)" style="font-size: 10px; padding: 2px 6px; cursor: pointer; border-radius: 3px; border: 1px solid #cbd5e1; background: #fff;">Hapus Semua</button>
+            </div>
+          </div>
+          <div id="filterExpLayananDesaGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; max-height: 100px; overflow-y: auto; background: #fff; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px;">
+            <!-- Render oleh JS -->
+          </div>
+        </div>
+
+        <!-- BARIS 3: CHECKBOX FILTER DUSUN -->
+        <div id="filterExpLayananDusunWrapper" style="display: none; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: bold; color: #0369a1; text-transform: uppercase;">Pilih Dusun untuk Ekspor / Tampilan:</span>
+            <div style="display: flex; gap: 5px;">
+              <button type="button" onclick="toggleAllLayananCheckboxes('cb_layanan_dusun', true)" style="font-size: 10px; padding: 2px 6px; cursor: pointer; border-radius: 3px; border: 1px solid #cbd5e1; background: #fff;">Pilih Semua</button>
+              <button type="button" onclick="toggleAllLayananCheckboxes('cb_layanan_dusun', false)" style="font-size: 10px; padding: 2px 6px; cursor: pointer; border-radius: 3px; border: 1px solid #cbd5e1; background: #fff;">Hapus Semua</button>
+            </div>
+          </div>
+          <div id="filterExpLayananDusunGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; max-height: 100px; overflow-y: auto; background: #fff; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px;">
+            <!-- Render oleh JS -->
+          </div>
+        </div>
+
+        <!-- BARIS 4: TOMBOL DOWNLOAD EXCEL & PDF -->
+        <div style="display: flex; gap: 8px; border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 4px;">
           <button type="button" class="btn-nav btn-warning" style="flex: 1; justify-content: center; padding: 8px 12px; font-size: 12px; font-weight: bold;" onclick="exportLayananToExcel()">
             📥 Ekspor Excel (.xlsx)
           </button>
@@ -7409,6 +7450,10 @@ function checkAndLockKbTable() {
     if (kaderInput) {
       kaderInput.value = "";
     }
+
+    if (typeof initLayananWilayahFilter === "function") {
+      initLayananWilayahFilter();
+    }
   }
 
   function closePelayananKbModal() {
@@ -7435,20 +7480,57 @@ function checkAndLockKbTable() {
     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:15px;">Memuat antrean...</td></tr>`;
 
     const statusFilter = document.getElementById("filterStatusLayanan").value;
-
     let query = db.from('pendaftaran_layanan_kb').select('*').order('created_at', { ascending: false });
 
+    // 1. Filter Status
     if (statusFilter !== "SEMUA") {
       query = query.eq('status', statusFilter);
     }
 
-    // Pembatasan wilayah sesuai hak akses pengguna
-    if (isDesaRole()) {
-      query = query.eq('kode_kec', userKodeKec).eq('kode_desa', userKodeDesa);
-    } else if (isKecRole()) {
-      query = query.eq('kode_kec', userKodeKec);
+    // 2. Filter Level Kecamatan
+    if (isDesaRole() || isKecRole()) {
+      query = query.eq('kode_kec', String(userKodeKec).padStart(2, '0'));
+    } else {
+      const selKec = document.getElementById("filterExpLayananKec")?.value;
+      if (selKec) query = query.eq('kode_kec', String(selKec).padStart(2, '0'));
     }
 
+    // 3. Filter Level Desa
+    if (isDesaRole()) {
+      query = query.eq('kode_desa', String(userKodeDesa).padStart(4, '0'));
+    } else {
+      const allDesaBoxes = document.querySelectorAll('input[name="cb_layanan_desa"]');
+      if (allDesaBoxes.length > 0) {
+        const checkedDesa = Array.from(document.querySelectorAll('input[name="cb_layanan_desa"]:checked')).map(cb => String(cb.value).padStart(4, '0'));
+        if (checkedDesa.length > 0) {
+          query = query.in('kode_desa', checkedDesa);
+        } else {
+          // Jika checkbox ada tapi sengaja di-uncheck semua, tampilkan kosong
+          cachedAntreanLayanan = [];
+          renderAntreanLayananTable();
+          return;
+        }
+      }
+    }
+
+    // 4. Filter Level Dusun
+    const allDusunBoxes = document.querySelectorAll('input[name="cb_layanan_dusun"]');
+    if (allDusunBoxes.length > 0) {
+      const checkedDusun = Array.from(document.querySelectorAll('input[name="cb_layanan_dusun"]:checked')).map(cb => String(cb.value).padStart(4, '0'));
+      if (checkedDusun.length > 0) {
+        query = query.in('kode_dusun', checkedDusun);
+      } else {
+        // Jika checkbox dusun ada tapi di-uncheck semua, tampilkan kosong
+        cachedAntreanLayanan = [];
+        renderAntreanLayananTable();
+        return;
+      }
+    } else if (isDesaRole() && userKodeDusunList && userKodeDusunList.length > 0) {
+      // Proteksi bawaan role User Desa jika checkbox dusun belum dirender
+      query = query.in('kode_dusun', userKodeDusunList);
+    }
+
+    // 5. Eksekusi Query
     const { data, error } = await query;
     if (error || !data) {
       tbody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center; padding:15px;">Gagal memuat: ${error ? error.message : 'Error koneksi'}</td></tr>`;
@@ -7457,16 +7539,12 @@ function checkAndLockKbTable() {
 
     cachedAntreanLayanan = data;
 
-    // Hitung badge antrean aktif (status TERDAFTAR)
+    // Perbarui Badge Antrean
     const pendingCount = data.filter(d => d.status === 'TERDAFTAR').length;
     const badge = document.getElementById("badgeAntreanLayanan");
     if (badge) {
-      if (pendingCount > 0) {
-        badge.innerText = pendingCount;
-        badge.style.display = "inline-block";
-      } else {
-        badge.style.display = "none";
-      }
+      badge.innerText = pendingCount;
+      badge.style.display = pendingCount > 0 ? "inline-block" : "none";
     }
 
     renderAntreanLayananTable();
@@ -8063,72 +8141,36 @@ function checkAndLockKbTable() {
     const currentFilter = document.getElementById("filterStatusLayanan").value;
     const isPelayananKb = (currentFilter === "SELESAI");
 
-    // Tentukan Judul Tabel & File berdasarkan status
-    let judulTabel = "TABEL CALON AKSEPTOR";
-    let filePrefix = "TABEL_CALON_AKSEPTOR";
-
-    if (isPelayananKb) {
-      judulTabel = "TABEL PELAYANAN KB";
-      filePrefix = "TABEL_PELAYANAN_KB";
-    } else if (currentFilter === "BATAL") {
+    let judulTabel = isPelayananKb ? "TABEL PELAYANAN KB" : "TABEL CALON AKSEPTOR";
+    let filePrefix = isPelayananKb ? "TABEL_PELAYANAN_KB" : "TABEL_CALON_AKSEPTOR";
+    if (currentFilter === "BATAL") {
       judulTabel = "TABEL CALON AKSEPTOR (BATAL)";
       filePrefix = "TABEL_AKSEPTOR_BATAL";
     }
 
-    // Helper nama wilayah
-    const getNmKec = (kd) => {
-      for (let kab in dataKecamatan) {
-        if (dataKecamatan[kab] && dataKecamatan[kab][kd]) return dataKecamatan[kab][kd];
-      }
-      return kd || "-";
-    };
-
-    const getNmDesa = (kdKec, kdDesa) => {
-      if (dataDesa[kdKec] && dataDesa[kdKec][kdDesa]) return dataDesa[kdKec][kdDesa];
-      return kdDesa || "-";
-    };
-
+    const getNmKec = (kd) => (dataKecamatan[userKodeKab] && dataKecamatan[userKodeKab][kd]) ? dataKecamatan[userKodeKab][kd] : kd || "-";
+    const getNmDesa = (kdKec, kdDesa) => (dataDesa[kdKec] && dataDesa[kdKec][kdDesa]) ? dataDesa[kdKec][kdDesa] : kdDesa || "-";
     const getNmDsn = (kdKec, kdDesa, kdDsn) => {
       const dsnMap = getDusunList(kdKec, kdDesa);
-      if (dsnMap && dsnMap[kdDsn]) return dsnMap[kdDsn].nama;
-      return kdDsn || "-";
+      return (dsnMap && dsnMap[kdDsn]) ? dsnMap[kdDsn].nama : kdDsn || "-";
     };
 
-    // Header Kolom tetap seragam persis permintaan
     const headers = [
-      "NO.",
-      "KECAMATAN",
-      "DESA",
-      "DUSUN",
-      "RT",
-      "NAMA SUAMI",
-      "NIK SUAMI",
-      "NAMA ISTRI",
-      "NIK ISTRI",
-      "JENIS ALKON",
-      "JENIS AKSEPTOR",
+      "NO.", "KECAMATAN", "DESA", "DUSUN", "RT",
+      "NAMA SUAMI", "NIK SUAMI", "NAMA ISTRI", "NIK ISTRI",
+      "JENIS ALKON", "JENIS AKSEPTOR",
       isPelayananKb ? "TANGGAL PELAYANAN" : "TANGGAL RENCANA PELAYANAN"
     ];
 
     const rows = cachedAntreanLayanan.map((item, idx) => {
-      const nmKec = getNmKec(item.kode_kec);
-      const nmDesa = getNmDesa(item.kode_kec, item.kode_desa);
-      const nmDsn = getNmDsn(item.kode_kec, item.kode_desa, item.kode_dusun);
-
-      // Pada Tabel Pelayanan KB gunakan alkon realisasi; pada Calon Akseptor gunakan rencana
-      const alkon = isPelayananKb 
-        ? (item.metode_realisasi || item.rencana_metode || "-")
-        : (item.rencana_metode || "-");
-
-      const tgl = isPelayananKb
-        ? (item.tgl_layanan_realisasi || item.tgl_rencana_layanan || "-")
-        : (item.tgl_rencana_layanan || "-");
+      const alkon = isPelayananKb ? (item.metode_realisasi || item.rencana_metode || "-") : (item.rencana_metode || "-");
+      const tgl = isPelayananKb ? (item.tgl_layanan_realisasi || item.tgl_rencana_layanan || "-") : (item.tgl_rencana_layanan || "-");
 
       return [
         idx + 1,
-        nmKec,
-        nmDesa,
-        nmDsn,
+        getNmKec(item.kode_kec),
+        getNmDesa(item.kode_kec, item.kode_desa),
+        getNmDsn(item.kode_kec, item.kode_desa, item.kode_dusun),
         item.kode_rt || "-",
         item.nama_suami || "-",
         String(item.nik_suami || "-"),
@@ -8141,6 +8183,142 @@ function checkAndLockKbTable() {
     });
 
     return { judulTabel, filePrefix, headers, rows };
+  }
+
+  // =========================================================================
+  // LOGIKA KONTROL WILAYAH BERTINGKAT UNTUK PELAYANAN KB
+  // =========================================================================
+  function initLayananWilayahFilter() {
+    const cKec = document.getElementById("filterExpLayananKecContainer");
+    const selKec = document.getElementById("filterExpLayananKec");
+    const wDesa = document.getElementById("filterExpLayananDesaWrapper");
+    const wDusun = document.getElementById("filterExpLayananDusunWrapper");
+
+    wDesa.style.display = "none";
+    wDusun.style.display = "none";
+
+    if (isDesaRole()) {
+      cKec.style.display = "none";
+      // User Desa langsung merender dusun hak aksesnya
+      renderLayananDusunCheckboxes(userKodeKec, userKodeDesa);
+    } else if (isKecRole()) {
+      cKec.style.display = "none";
+      // Admin Kec langsung merender checkbox desa di kecamatannya
+      renderLayananDesaCheckboxes(userKodeKec);
+    } else {
+      // Admin Kab menampilkan dropdown kecamatan
+      cKec.style.display = "block";
+      selKec.innerHTML = '<option value="">-- SEMUA KECAMATAN --</option>';
+      for (let kab in dataKecamatan) {
+        for (let kd in dataKecamatan[kab]) {
+          selKec.add(new Option(dataKecamatan[kab][kd].toUpperCase(), String(kd).padStart(2, '0')));
+        }
+      }
+    }
+  }
+
+  function onLayananKecChange() {
+    const kdKec = document.getElementById("filterExpLayananKec").value;
+    if (kdKec) {
+      renderLayananDesaCheckboxes(kdKec);
+    } else {
+      document.getElementById("filterExpLayananDesaWrapper").style.display = "none";
+      document.getElementById("filterExpLayananDusunWrapper").style.display = "none";
+      loadAntreanLayananTable();
+    }
+  }
+
+  function renderLayananDesaCheckboxes(kdKec) {
+    const wrapper = document.getElementById("filterExpLayananDesaWrapper");
+    const grid = document.getElementById("filterExpLayananDesaGrid");
+    const wDusun = document.getElementById("filterExpLayananDusunWrapper");
+    
+    grid.innerHTML = "";
+    wDusun.style.display = "none";
+
+    let cleanKec = String(kdKec).padStart(2, '0');
+    let desas = dataDesa[cleanKec] || {};
+
+    let listDesaKeys = Object.keys(desas);
+    if (listDesaKeys.length === 0) {
+      wrapper.style.display = "none";
+      loadAntreanLayananTable();
+      return;
+    }
+
+    wrapper.style.display = "block";
+    listDesaKeys.forEach(kd => {
+      const cleanKd = String(kd).padStart(4, '0');
+      const label = document.createElement("label");
+      label.style.cssText = "display: flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; color: #334155;";
+      label.innerHTML = `
+        <input type="checkbox" name="cb_layanan_desa" value="${cleanKd}" checked onchange="onLayananDesaCheckboxChange('${cleanKec}')" style="accent-color: #0284c7;">
+        <span>${desas[kd]}</span>
+      `;
+      grid.appendChild(label);
+    });
+
+    loadAntreanLayananTable();
+  }
+
+  function onLayananDesaCheckboxChange(kdKec) {
+    const checkedDesa = Array.from(document.querySelectorAll('input[name="cb_layanan_desa"]:checked')).map(cb => cb.value);
+    const wDusun = document.getElementById("filterExpLayananDusunWrapper");
+
+    // Jika tepat memilih 1 desa, munculkan checkbox dusun
+    if (checkedDesa.length === 1) {
+      renderLayananDusunCheckboxes(kdKec, checkedDesa[0]);
+    } else {
+      wDusun.style.display = "none";
+      loadAntreanLayananTable();
+    }
+  }
+
+  function renderLayananDusunCheckboxes(kdKec, kdDesa) {
+    const wrapper = document.getElementById("filterExpLayananDusunWrapper");
+    const grid = document.getElementById("filterExpLayananDusunGrid");
+    grid.innerHTML = "";
+
+    const dsnMap = getDusunList(kdKec, kdDesa);
+    if (!dsnMap || Object.keys(dsnMap).length === 0) {
+      wrapper.style.display = "none";
+      loadAntreanLayananTable();
+      return;
+    }
+
+    wrapper.style.display = "block";
+    for (let kd in dsnMap) {
+      let cleanKd = String(kd).padStart(4, '0');
+
+      // Proteksi User Desa: Hanya tampilkan dusun yang diizinkan
+      if (isDesaRole() && userKodeDusunList && userKodeDusunList.length > 0) {
+        if (!userKodeDusunList.includes(cleanKd)) {
+          continue;
+        }
+      }
+
+      const label = document.createElement("label");
+      label.style.cssText = "display: flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer; color: #334155;";
+      label.innerHTML = `
+        <input type="checkbox" name="cb_layanan_dusun" value="${cleanKd}" checked onchange="loadAntreanLayananTable()" style="accent-color: #0284c7;">
+        <span>${dsnMap[kd].nama}</span>
+      `;
+      grid.appendChild(label);
+    }
+
+    loadAntreanLayananTable();
+  }
+
+  function toggleAllLayananCheckboxes(name, status) {
+    const boxes = document.querySelectorAll(`input[name="${name}"]`);
+    boxes.forEach(cb => cb.checked = status);
+    
+    if (name === 'cb_layanan_desa') {
+      const kec = isKecRole() ? userKodeKec : document.getElementById("filterExpLayananKec").value;
+      onLayananDesaCheckboxChange(kec);
+    } else {
+      loadAntreanLayananTable();
+    }
   }
 
   // 1. Ekspor Excel (.xlsx) dengan Header Judul Tabel
