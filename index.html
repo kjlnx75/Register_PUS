@@ -7637,7 +7637,7 @@ function checkAndLockKbTable() {
     const metodeBaru = (document.getElementById("reg_rencana_metode")?.value || "").trim().toUpperCase();
     const bulanRencana = parseInt(document.getElementById("reg_bulan_rencana")?.value || (new Date().getMonth() + 1), 10);
 
-    const mKeys = ["kb_jan", "kb_feb", "kb_mar", "kb_apr", "kb_mei", "kb_jun", "kb_jul", "kb_agu", "kb_sep", "kb_okt", "kb_nov", "kb_des"];[cite: 1]
+    const mKeys = ["kb_jan", "kb_feb", "kb_mar", "kb_apr", "kb_mei", "kb_jun", "kb_jul", "kb_agu", "kb_sep", "kb_okt", "kb_nov", "kb_des"];
 
     // A. Cari status terakhir yang terisi sebelum bulan rencana (mundur dari bulanRencana - 2)
     let statusTerakhirRaw = "";
