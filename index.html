@@ -1507,6 +1507,11 @@
           </div>
         </div>
 
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="font-size: 12px; font-weight: bold; color: #475569;">Nama Kader / Petugas Pendamping:</label>
+          <input type="text" id="reg_nama_kader" required placeholder="Masukkan nama kader pendamping..." style="text-transform: uppercase;">
+        </div>
+
         <div class="form-group" style="margin-bottom: 20px;">
           <label style="font-size: 12px; font-weight: bold; color: #475569;">Catatan Tambahan:</label>
           <input type="text" id="reg_catatan" placeholder="Catatan medis/keluhan/riwayat kontrasepsi sebelumnya (opsional)" style="text-transform: none;">
@@ -7293,10 +7298,39 @@ function checkAndLockKbTable() {
   function openPelayananKbModal() {
     document.getElementById("modalPelayananKb").style.display = "block";
     switchLayananTab('antrean');
-    // Set default bulan rencana ke bulan berjalan
+    
     const currentMonth = new Date().getMonth() + 1;
     const blnEl = document.getElementById("reg_bulan_rencana");
     if (blnEl) blnEl.value = String(currentMonth);
+
+    // Otomatis isi dengan nama lengkap pengguna atau username akun yang login
+    const kaderInput = document.getElementById("reg_nama_kader");
+    if (kaderInput && !kaderInput.value) {
+      kaderInput.value = (currentNamaLengkap || currentUser || "").toUpperCase();
+    }
+  }
+
+  function resetFormPendaftaranLayanan() {
+    document.getElementById("formPendaftaranLayanan").reset();
+    document.getElementById("reg_id_pus").value = "";
+    document.getElementById("reg_tahun").value = "";
+    document.getElementById("reg_kode_kec").value = "";
+    document.getElementById("reg_kode_desa").value = "";
+    document.getElementById("reg_kode_dusun").value = "";
+    document.getElementById("reg_info_wilayah").value = "";
+    document.getElementById("cariPusLayananInput").value = "";
+    document.getElementById("hasilPencarianPusLayanan").style.display = "none";
+    document.getElementById("hasilPencarianPusLayanan").innerHTML = "";
+
+    const currentMonth = new Date().getMonth() + 1;
+    const blnEl = document.getElementById("reg_bulan_rencana");
+    if (blnEl) blnEl.value = String(currentMonth);
+
+    // Setel ulang nama kader ke pengguna yang login
+    const kaderInput = document.getElementById("reg_nama_kader");
+    if (kaderInput) {
+      kaderInput.value = (currentNamaLengkap || currentUser || "").toUpperCase();
+    }
   }
 
   function closePelayananKbModal() {
@@ -7367,6 +7401,12 @@ function checkAndLockKbTable() {
     if (cachedAntreanLayanan.length === 0) {
       tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">Tidak ada data antrean pelayanan.</td></tr>`;
       return;
+
+      <td>
+          <b>${item.nama_istri}</b> (${item.nik_istri || '-' })<br>
+          <small style="color:#64748b;">Suami: ${item.nama_suami || '-'} | ID: ${item.id_pus}</small>
+          ${item.nama_kader ? `<br><span style="background:#fef3c7; color:#92400e; padding:1px 5px; border-radius:3px; font-size:10.5px; font-weight:bold;">Kader: ${item.nama_kader}</span>` : ''}
+        </td>
     }
 
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
@@ -7556,6 +7596,12 @@ function checkAndLockKbTable() {
       return;
     }
 
+    const namaKaderVal = (document.getElementById("reg_nama_kader").value || "").trim().toUpperCase();
+    if (!namaKaderVal) {
+      Swal.fire("Perhatian", "Nama Kader pendamping wajib diisi!", "warning");
+      return;
+    }
+
     const btn = document.getElementById("btnSimpanPendaftaranLayanan");
     btn.disabled = true;
     btn.innerText = "Mendaftarkan...";
@@ -7573,6 +7619,7 @@ function checkAndLockKbTable() {
       kode_dusun: document.getElementById("reg_kode_dusun").value,
       rencana_metode: document.getElementById("reg_rencana_metode").value,
       faskes_tujuan: document.getElementById("reg_faskes_tujuan").value.trim() || null,
+      nama_kader: namaKaderVal, // <-- Kolom nama kader
       catatan: document.getElementById("reg_catatan").value.trim() || null,
       status: 'TERDAFTAR',
       created_by: currentUser || "Kader"
@@ -7585,8 +7632,8 @@ function checkAndLockKbTable() {
       Swal.fire({
         icon: 'success',
         title: 'Calon Akseptor Terdaftar!',
-        text: `PUS [${payload.nama_istri}] berhasil masuk ke antrean pelayanan KB.`,
-        timer: 1500,
+        text: `PUS [${payload.nama_istri}] berhasil didaftarkan oleh Kader ${namaKaderVal}.`,
+        timer: 1600,
         showConfirmButton: false
       });
 
