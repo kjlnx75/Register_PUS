@@ -1426,7 +1426,7 @@
       <div style="background: #f1f5f9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #0284c7;">
         <div style="font-size: 12.5px; color: #334155; font-weight: bold; margin-bottom: 6px;">Langkah 1: Cari & Pilih PUS dari Database</div>
         <div style="display: flex; gap: 8px;">
-          <input type="text" id="cariPusLayananInput" placeholder="Ketik Nama Istri, NIK, atau ID PUS..." style="flex: 1; padding: 8px; font-size: 13px;">
+          <input type="text" id="cariPusLayananInput" placeholder="KETIK NAMA ISTRI, NIK, ATAU ID PUS..." oninput="this.value = this.value.toUpperCase()" style="flex: 1; padding: 10px 12px; font-size: 13px; text-transform: uppercase; border: 1px solid #cbd5e1; border-radius: 6px;">
           <button type="button" class="btn-action" style="padding: 8px 16px; font-size: 12px;" onclick="cariPusUntukLayanan()">🔍 Cari PUS</button>
         </div>
         <div id="hasilPencarianPusLayanan" style="max-height: 240px; overflow-y: auto; margin-top: 8px; border: 1px solid #cbd5e1; border-radius: 6px; display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"></div>
@@ -1439,89 +1439,104 @@
         <input type="hidden" id="reg_kode_desa" value="">
         <input type="hidden" id="reg_kode_dusun" value="">
 
-        <div style="font-size: 12.5px; color: #1f4e78; font-weight: bold; margin-bottom: 10px;">Langkah 2: Konfirmasi Data & Rencana Pelayanan</div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px;">
-          <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">Nama Istri (Terpilih):</label>
-            <input type="text" id="reg_nama_istri" readonly placeholder="Pilih PUS terlebih dahulu" style="background:#e9ecef; font-weight:bold;">
+        <!-- KARTU A: RINGKASAN IDENTITAS PUS TERPILIH -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 18px;">
+          <div style="font-size: 12px; font-weight: 800; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span style="background: #0284c7; color: white; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px;">1</span>
+            Data Identitas Calon Akseptor (Otomatis Terisi)
           </div>
-          <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">NIK Istri:</label>
-            <input type="text" id="reg_nik_istri" readonly placeholder="-" style="background:#e9ecef;">
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Nama Istri:</label>
+              <input type="text" id="reg_nama_istri" readonly placeholder="PILIH PUS TERLEBIH DAHULU" style="background: #e2e8f0; font-weight: bold; color: #0f172a; border-color: #cbd5e1; cursor: not-allowed;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">NIK Istri:</label>
+              <input type="text" id="reg_nik_istri" readonly placeholder="-" style="background: #e2e8f0; font-family: monospace; color: #334155; border-color: #cbd5e1; cursor: not-allowed;">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Nama Suami:</label>
+              <input type="text" id="reg_nama_suami" readonly placeholder="-" style="background: #e2e8f0; color: #334155; border-color: #cbd5e1; cursor: not-allowed;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 4px; text-transform: uppercase;">Wilayah Domisili:</label>
+              <input type="text" id="reg_info_wilayah" readonly placeholder="-" style="background: #e2e8f0; font-size: 12px; color: #334155; border-color: #cbd5e1; cursor: not-allowed;">
+            </div>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px;">
-          <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">Nama Suami:</label>
-            <input type="text" id="reg_nama_suami" readonly placeholder="-" style="background:#e9ecef;">
+        <!-- KARTU B: FORM RENCANA PELAYANAN MEDIS -->
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+          <div style="font-size: 12px; font-weight: 800; color: #1e293b; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <span style="background: #059669; color: white; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px;">2</span>
+            Rencana Pelayanan & Tindakan KB
           </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
+            <div>
+              <label for="reg_rencana_metode" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Metode Kontrasepsi <span style="color: #ef4444;">*</span></label>
+              <select id="reg_rencana_metode" required style="border: 1px solid #94a3b8; font-weight: 600; color: #0369a1;">
+                <option value="">-- PILIH METODE --</option>
+                <option value="IMPLAN">IMPLAN</option>
+                <option value="IUD">IUD</option>
+                <option value="SUNTIK">SUNTIK</option>
+                <option value="PIL">PIL</option>
+                <option value="KONDOM">KONDOM</option>
+                <option value="MOW">MOW</option>
+                <option value="MOP">MOP</option>
+              </select>
+            </div>
+            <div>
+              <label for="reg_bulan_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Bulan Pelayanan <span style="color: #ef4444;">*</span></label>
+              <select id="reg_bulan_rencana" required style="border: 1px solid #94a3b8; font-weight: 600;">
+                <option value="1">JANUARI</option>
+                <option value="2">FEBRUARI</option>
+                <option value="3">MARET</option>
+                <option value="4">APRIL</option>
+                <option value="5">MEI</option>
+                <option value="6">JUNI</option>
+                <option value="7">JULI</option>
+                <option value="8">AGUSTUS</option>
+                <option value="9">SEPTEMBER</option>
+                <option value="10">OKTOBER</option>
+                <option value="11">NOVEMBER</option>
+                <option value="12">DESEMBER</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
+            <div>
+              <label for="reg_tgl_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Tanggal Rencana Tindakan:</label>
+              <input type="date" id="reg_tgl_rencana" style="border: 1px solid #94a3b8;">
+            </div>
+            <div>
+              <label for="reg_faskes_tujuan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Tempat / Fasilitas Pelayanan:</label>
+              <input type="text" id="reg_faskes_tujuan" placeholder="CONTOH: PUSKESMAS / BAKSOS KB" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase;">
+            </div>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label for="reg_nama_kader" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Nama Kader / Petugas Pendamping <span style="color: #ef4444;">*</span></label>
+            <input type="text" id="reg_nama_kader" required placeholder="NAMA LENGKAP KADER PENDAMPING" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase; font-weight: 600;">
+          </div>
+
           <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">Wilayah PUS:</label>
-            <input type="text" id="reg_info_wilayah" readonly placeholder="-" style="background:#e9ecef; font-size: 12px;">
+            <label for="reg_catatan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Catatan Tambahan:</label>
+            <input type="text" id="reg_catatan" placeholder="Catatan medis/keluhan/riwayat KB sebelumnya (opsional)" style="border: 1px solid #94a3b8; text-transform: none;">
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px;">
-          <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">Rencana Metode Kontrasepsi:</label>
-            <select id="reg_rencana_metode" required>
-              <option value="">-- PILIH METODE --</option>
-              <option value="IMPLAN">IMPLAN</option>
-              <option value="IUD">IUD</option>
-              <option value="SUNTIK">SUNTIK</option>
-              <option value="PIL">PIL</option>
-              <option value="KONDOM">KONDOM</option>
-              <option value="MOW">MOW</option>
-              <option value="MOP">MOP</option>
-            </select>
-          </div>
-          <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">Bulan Pelaksanaan Layanan:</label>
-            <select id="reg_bulan_rencana" required>
-              <option value="1">JANUARI</option>
-              <option value="2">FEBRUARI</option>
-              <option value="3">MARET</option>
-              <option value="4">APRIL</option>
-              <option value="5">MEI</option>
-              <option value="6">JUNI</option>
-              <option value="7">JULI</option>
-              <option value="8">AGUSTUS</option>
-              <option value="9">SEPTEMBER</option>
-              <option value="10">OKTOBER</option>
-              <option value="11">NOVEMBER</option>
-              <option value="12">DESEMBER</option>
-            </select>
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 12px;">
-          <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">Tanggal Rencana (Opsional):</label>
-            <input type="date" id="reg_tgl_rencana">
-          </div>
-          <div>
-            <label style="font-size: 12px; font-weight: bold; color: #475569;">Fasilitas Kesehatan / Tempat Layanan:</label>
-            <input type="text" id="reg_faskes_tujuan" placeholder="Contoh: Puskesmas Meninting / Baksos KB">
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label style="font-size: 12px; font-weight: bold; color: #475569;">Nama Kader / Petugas Pendamping:</label>
-          <input type="text" id="reg_nama_kader" required placeholder="Masukkan nama kader pendamping..." style="text-transform: uppercase;">
-        </div>
-
-        <div class="form-group" style="margin-bottom: 20px;">
-          <label style="font-size: 12px; font-weight: bold; color: #475569;">Catatan Tambahan:</label>
-          <input type="text" id="reg_catatan" placeholder="Catatan medis/keluhan/riwayat kontrasepsi sebelumnya (opsional)" style="text-transform: none;">
-        </div>
-
+        <!-- TOMBOL AKSI -->
         <div style="display: flex; gap: 10px;">
-          <button type="submit" id="btnSimpanPendaftaranLayanan" class="btn-submit" style="margin-top: 0; flex: 2; background-color: #2563eb;">
+          <button type="submit" id="btnSimpanPendaftaranLayanan" class="btn-submit" style="margin-top: 0; flex: 2; background-color: #0284c7; padding: 13px; font-size: 14px;">
             💾 DAFTARKAN CALON AKSEPTOR
           </button>
-          <button type="button" class="btn-nav btn-secondary" style="flex: 1; justify-content: center;" onclick="resetFormPendaftaranLayanan()">
+          <button type="button" class="btn-nav btn-secondary" style="flex: 1; justify-content: center; padding: 13px; font-size: 14px;" onclick="resetFormPendaftaranLayanan()">
             Bersihkan
           </button>
         </div>
