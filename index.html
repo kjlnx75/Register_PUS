@@ -2669,11 +2669,16 @@ function checkAndLockKbTable() {
       label.innerText = `${checked.length} Nilai Dipilih`;
     }
   }
-
-  // Helper pilih / bersihkan semua checkbox
+  
   function setAllAdvCheckboxes(status) {
+    toggleAllAdvCheckboxes(status);
+  }
+
+  function toggleAllAdvCheckboxes(status) {
     const checkboxes = document.querySelectorAll('input[name="bnba_adv_cb"]');
-    checkboxes.forEach(cb => cb.checked = status);
+    checkboxes.forEach(cb => {
+      cb.checked = status;
+    });
   }
 
   function onBnbaAdvCategoryChange() {
@@ -4877,7 +4882,7 @@ function showDashboardView() {
     const tingkat = document.getElementById("chartTingkat").value || "Wilayah";
     const tahun = document.getElementById("chartTahun").value;
     const bulanSelect = document.getElementById("chartBulan");
-    const namaBulan = bulanSelect.options[bulanSelect.selectedIndex].text;
+    const namaBulan = bulanSelect.selectedIndex >= 0 ? bulanSelect.options[bulanSelect.selectedIndex].text : "-";
 
     Swal.fire({
       title: 'Menyiapkan Dokumen PDF...',
@@ -7388,7 +7393,9 @@ function showDashboardView() {
   }
 
   function resetFormPendaftaranLayanan() {
-    document.getElementById("formPendaftaranLayanan").reset();
+    const form = document.getElementById("formPendaftaranLayanan");
+    if (form) form.reset();
+
     document.getElementById("reg_id_pus").value = "";
     document.getElementById("reg_tahun").value = "";
     document.getElementById("reg_kode_kec").value = "";
@@ -7399,11 +7406,22 @@ function showDashboardView() {
     document.getElementById("reg_nama_suami").value = "";
     document.getElementById("reg_info_wilayah").value = "";
     document.getElementById("cariPusLayananInput").value = "";
-    document.getElementById("hasilPencarianPusLayanan").style.display = "none";
-    document.getElementById("hasilPencarianPusLayanan").innerHTML = "";
-    
+
+    const resBox = document.getElementById("hasilPencarianPusLayanan");
+    if (resBox) {
+      resBox.style.display = "none";
+      resBox.innerHTML = "";
+    }
+
     const kaderInput = document.getElementById("reg_nama_kader");
     if (kaderInput) kaderInput.value = "";
+
+    pusTerpilihDataLayanan = null;
+    const infoText = document.getElementById("infoRiwayatKb");
+    if (infoText) infoText.innerText = "";
+
+    const jenisSelect = document.getElementById("reg_jenis_akseptor");
+    if (jenisSelect) jenisSelect.value = "";
 
     const currentMonth = new Date().getMonth() + 1;
     const blnEl = document.getElementById("reg_bulan_rencana");
@@ -7754,36 +7772,7 @@ function showDashboardView() {
     if (infoText) {
       infoText.innerText = `💡 Terdeteksi: ${hasilDeteksi} (${keterangan})`;
     }
-  }
-
-  function resetFormPendaftaranLayanan() {
-    document.getElementById("formPendaftaranLayanan").reset();
-    document.getElementById("reg_id_pus").value = "";
-    document.getElementById("reg_tahun").value = "";
-    document.getElementById("reg_kode_kec").value = "";
-    document.getElementById("reg_kode_desa").value = "";
-    document.getElementById("reg_kode_dusun").value = "";
-    document.getElementById("reg_nama_istri").value = "";
-    document.getElementById("reg_nik_istri").value = "";
-    document.getElementById("reg_nama_suami").value = "";
-    document.getElementById("reg_info_wilayah").value = "";
-    document.getElementById("cariPusLayananInput").value = "";
-    document.getElementById("hasilPencarianPusLayanan").style.display = "none";
-    document.getElementById("hasilPencarianPusLayanan").innerHTML = "";
-
-    const kaderInput = document.getElementById("reg_nama_kader");
-    if (kaderInput) kaderInput.value = "";
-    
-    pusTerpilihDataLayanan = null;
-    const infoText = document.getElementById("infoRiwayatKb");
-    if (infoText) infoText.innerText = "";
-    const jenisSelect = document.getElementById("reg_jenis_akseptor");
-    if (jenisSelect) jenisSelect.value = "";    
-
-    const currentMonth = new Date().getMonth() + 1;
-    const blnEl = document.getElementById("reg_bulan_rencana");
-    if (blnEl) blnEl.value = String(currentMonth);
-  }
+  }  
 
   // 3. Simpan Pendaftaran ke Tabel pendaftaran_layanan_kb
   async function handleSimpanPendaftaranLayanan(event) {
