@@ -7637,83 +7637,106 @@ function showDashboardView() {
 
   let pusTerpilihDataLayanan = null;
 
-// 1. Simpan objek PUS saat diklik dari hasil pencarian
-function pilihPusUntukLayanan(item) {
-  pusTerpilihDataLayanan = item; // Simpan data PUS
+  function pilihPusUntukLayanan(item) {
+    pusTerpilihDataLayanan = item; // Simpan objek data PUS
 
-  document.getElementById("hasilPencarianPusLayanan").style.display = "none";
-  document.getElementById("cariPusLayananInput").value = item.nama_istri;
+    const resultBox = document.getElementById("hasilPencarianPusLayanan");
+    if (resultBox) resultBox.style.display = "none";
+    
+    document.getElementById("cariPusLayananInput").value = item.nama_istri || "";
 
-  document.getElementById("reg_id_pus").value = item.id_pus;
-  document.getElementById("reg_tahun").value = item.tahun;
-  document.getElementById("reg_kode_kec").value = item.kode_kec;
-  document.getElementById("reg_kode_desa").value = item.kode_desa;
-  document.getElementById("reg_kode_dusun").value = item.kode_dusun;
+    document.getElementById("reg_id_pus").value = item.id_pus || "";
+    document.getElementById("reg_tahun").value = item.tahun || "";
+    document.getElementById("reg_kode_kec").value = item.kode_kec || "";
+    document.getElementById("reg_kode_desa").value = item.kode_desa || "";
+    document.getElementById("reg_kode_dusun").value = item.kode_dusun || "";
 
-  document.getElementById("reg_nama_istri").value = item.nama_istri;
-  document.getElementById("reg_nik_istri").value = item.nik_istri;
-  document.getElementById("reg_nama_suami").value = item.nama_suami;
-  document.getElementById("reg_info_wilayah").value = `Kec. ${item.kecamatan_nama}, Desa ${item.desa_nama}, Dusun ${item.dusun_nama || '-'} (RT ${item.kode_rt})`;
+    document.getElementById("reg_nama_istri").value = item.nama_istri || "";
+    document.getElementById("reg_nik_istri").value = item.nik_istri || "";
+    document.getElementById("reg_nama_suami").value = item.nama_suami || "";
+    document.getElementById("reg_info_wilayah").value = `Kec. ${item.kecamatan_nama || '-'}, Desa ${item.desa_nama || '-'}, Dusun ${item.dusun_nama || '-'} (RT ${item.kode_rt || '-'})`;
 
-  evaluasiOtomatisJenisAkseptor();
-}
-
-function evaluasiOtomatisJenisAkseptor() {
-  if (!pusTerpilihDataLayanan) return;
-
-  const metodeBaru = (document.getElementById("reg_rencana_metode")?.value || "").trim().toUpperCase();
-  const bulanRencana = parseInt(document.getElementById("reg_bulan_rencana")?.value || (new Date().getMonth() + 1), 10);
-  const infoText = document.getElementById("infoRiwayatKb");
-  const jenisSelect = document.getElementById("reg_jenis_akseptor");
-
-  const mKeys = ["kb_jan", "kb_feb", "kb_mar", "kb_apr", "kb_mei", "kb_jun", "kb_jul", "kb_agu", "kb_sep", "kb_okt", "kb_nov", "kb_des"]; //
-
-  // Cari status aktif terakhir sebelum bulan rencana
-  let statusTerakhir = "";
-  let everKb = false;
-  let consecutiveNonKb = 0;
-
-  for (let i = bulanRencana - 2; i >= 0; i--) {
-    let raw = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
-    if (raw && raw !== "-" && raw !== "--KOSONG--") {
-      statusTerakhir = raw;
-      break;
-    }
+    // Jalankan deteksi jenis akseptor langsung saat PUS dipilih
+    evaluasiOtomatisJenisAkseptor();
   }
 
-  // Cek apakah pernah ber-KB sama sekali
-  for (let i = 0; i < bulanRencana - 1; i++) {
-    let raw = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
-    let parsed = evaluateKbStatus(raw); //[cite: 1]
-    if (parsed.type === "PESERTA_KB") { //[cite: 1]
-      everKb = true;
+  // 2. Fungsi Deteksi Cerdas Jenis Akseptor
+  function evaluasiOtomatisJenisAkseptor() {
+    if (!pusTerpilihDataLayanan) return;
+
+    const jenisSelect = document.getElementById("reg_jenis_akseptor");
+    const infoText = document.getElementById("infoRiwayatKb");
+    if (!jenisSelect) return;
+
+    const metodeBaru = (document.getElementById("reg_rencana_metode")?.value || "").trim().toUpperCase();
+    const bulanRencana = parseInt(document.getElementById("reg_bulan_rencana")?.value || (new Date().getMonth() + 1), 10);
+
+    const mKeys = ["kb_jan", "kb_feb", "kb_mar", "kb_apr", "kb_mei", "kb_jun", "kb_jul", "kb_agu", "kb_sep", "kb_okt", "kb_nov", "kb_des"];[cite: 1]
+
+    // A. Cari status terakhir yang terisi sebelum bulan rencana (mundur dari bulanRencana - 2)
+    let statusTerakhirRaw = "";
+    for (let i = bulanRencana - 2; i >= 0; i--) {
+      let val = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
+      if (val && val !== "-" && val !== "--KOSONG--" && val !== "NULL") {
+        statusTerakhirRaw = val;
+        break;
+      }
+    }
+
+    // Jika sebelum bulan rencana belum ada data sama sekali (misal daftar di Januari), cek bulan-bulan setelahnya untuk melihat apakah ada data riwayat
+    if (!statusTerakhirRaw) {
+      for (let i = 0; i < 12; i++) {
+        let val = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
+        if (val && val !== "-" && val !== "--KOSONG--" && val !== "NULL") {
+          statusTerakhirRaw = val;
+          break;
+        }
+      }
+    }
+
+    // B. Cek apakah pernah ber-KB di bulan-bulan sebelumnya
+    let pernahKbSebelumnya = false;
+    for (let i = 0; i < 12; i++) {
+      let val = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
+      let st = evaluateKbStatus(val);[cite: 1]
+      if (st.type === "PESERTA_KB") {[cite: 1]
+        pernahKbSebelumnya = true;
+        break;
+      }
+    }
+
+    // C. Klasifikasi Jenis Akseptor
+    let hasilDeteksi = "KB BARU (MURNI)";
+    let keterangan = statusTerakhirRaw ? `Status riwayat: ${statusTerakhirRaw}` : "Belum ada riwayat KB tercatat";
+
+    if (statusTerakhirRaw) {
+      const parsed = evaluateKbStatus(statusTerakhirRaw);[cite: 1]
+
+      if (parsed.type === "PESERTA_KB") {[cite: 1]
+        // Jika metode yang dipilih sama persis dengan metode sebelumnya
+        if (metodeBaru && metodeBaru === parsed.method) {[cite: 1]
+          hasilDeteksi = "KB ULANGAN";
+        } else {
+          hasilDeteksi = "GANTI CARA";
+        }
+      } else if (parsed.type === "BUKAN_PESERTA") {[cite: 1]
+        if (parsed.reason === "HAMIL") {[cite: 1]
+          hasilDeteksi = "KB BARU (KBPP)";
+        } else if (pernahKbSebelumnya) {
+          hasilDeteksi = "KB BARU (PASCA DO)";
+        } else {
+          hasilDeteksi = "KB BARU (MURNI)";
+        }
+      }
+    }
+
+    // Pasang hasil ke dropdown
+    jenisSelect.value = hasilDeteksi;
+
+    if (infoText) {
+      infoText.innerText = `💡 Terdeteksi: ${hasilDeteksi} (${keterangan})`;
     }
   }
-
-  let hasilDeteksi = "KB BARU (MURNI)";
-  let infoRiwayat = statusTerakhir ? `Status terakhir: ${statusTerakhir}` : "Belum ada riwayat KB tahun ini";
-
-  const statusEval = evaluateKbStatus(statusTerakhir); //[cite: 1]
-
-  if (statusEval.type === "PESERTA_KB") { //[cite: 1]
-    if (metodeBaru && metodeBaru === statusEval.method) { //[cite: 1]
-      hasilDeteksi = "KB ULANGAN";
-    } else {
-      hasilDeteksi = "GANTI CARA";
-    }
-  } else if (statusEval.type === "BUKAN_PESERTA") { //[cite: 1]
-    if (statusEval.reason === "HAMIL") { //[cite: 1]
-      hasilDeteksi = "KB BARU (KBPP)";
-    } else if (everKb) {
-      hasilDeteksi = "KB BARU (PASCA DO)";
-    } else {
-      hasilDeteksi = "KB BARU (MURNI)";
-    }
-  }
-
-  jenisSelect.value = hasilDeteksi;
-  if (infoText) infoText.innerText = `💡 Terdeteksi: ${hasilDeteksi} (${infoRiwayat})`;
-}
 
   function resetFormPendaftaranLayanan() {
     document.getElementById("formPendaftaranLayanan").reset();
@@ -7722,10 +7745,22 @@ function evaluasiOtomatisJenisAkseptor() {
     document.getElementById("reg_kode_kec").value = "";
     document.getElementById("reg_kode_desa").value = "";
     document.getElementById("reg_kode_dusun").value = "";
+    document.getElementById("reg_nama_istri").value = "";
+    document.getElementById("reg_nik_istri").value = "";
+    document.getElementById("reg_nama_suami").value = "";
     document.getElementById("reg_info_wilayah").value = "";
     document.getElementById("cariPusLayananInput").value = "";
     document.getElementById("hasilPencarianPusLayanan").style.display = "none";
     document.getElementById("hasilPencarianPusLayanan").innerHTML = "";
+
+    const kaderInput = document.getElementById("reg_nama_kader");
+    if (kaderInput) kaderInput.value = "";
+    
+    pusTerpilihDataLayanan = null;
+    const infoText = document.getElementById("infoRiwayatKb");
+    if (infoText) infoText.innerText = "";
+    const jenisSelect = document.getElementById("reg_jenis_akseptor");
+    if (jenisSelect) jenisSelect.value = "";    
 
     const currentMonth = new Date().getMonth() + 1;
     const blnEl = document.getElementById("reg_bulan_rencana");
@@ -7760,7 +7795,7 @@ function evaluasiOtomatisJenisAkseptor() {
     if (!jenisAkseptor) {
       errors.push("Jenis Akseptor belum dipilih");
     }
-    
+
     if (!bulanRencana) {
       errors.push("Bulan Pelayanan belum dipilih");
     }
