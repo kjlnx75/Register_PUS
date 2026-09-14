@@ -1402,6 +1402,13 @@
         <button type="button" class="btn-nav btn-secondary" style="padding: 6px 12px; font-size: 11px; margin-left: auto;" onclick="loadAntreanLayananTable()">🔄 Segarkan</button>
       </div>
 
+	  <!-- TOMBOL EKSPOR EXCEL & PDF -->
+	  <div style="margin-left: auto; display: flex; gap: 6px;">
+	    <button type="button" class="btn-nav btn-warning" style="padding: 6px 12px; font-size: 11px;" onclick="exportLayananToExcel()">📥 Ekspor Excel</button>
+	    <button type="button" class="btn-nav btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="exportLayananToPDF()">📄 Ekspor PDF</button>
+	  </div>
+    </div>
+
       <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
         <table class="kb-table" style="font-size: 11.5px; width: 100%; margin-top: 0; white-space: nowrap;">
           <thead>
@@ -8011,6 +8018,199 @@ function checkAndLockKbTable() {
         }
       }
     });
+  }
+
+  // =========================================================================
+  // FUNGSI EKSPOR: TABEL CALON AKSEPTOR & TABEL PELAYANAN KB
+  // =========================================================================
+  function getCleanLayananExportData() {
+    if (!cachedAntreanLayanan || cachedAntreanLayanan.length === 0) {
+      return null;
+    }
+
+    const currentFilter = document.getElementById("filterStatusLayanan").value;
+    const isPelayananKb = (currentFilter === "SELESAI");
+
+    // Tentukan Judul Tabel & File berdasarkan status
+    let judulTabel = "TABEL CALON AKSEPTOR";
+    let filePrefix = "TABEL_CALON_AKSEPTOR";
+
+    if (isPelayananKb) {
+      judulTabel = "TABEL PELAYANAN KB";
+      filePrefix = "TABEL_PELAYANAN_KB";
+    } else if (currentFilter === "BATAL") {
+      judulTabel = "TABEL CALON AKSEPTOR (BATAL)";
+      filePrefix = "TABEL_AKSEPTOR_BATAL";
+    }
+
+    // Helper nama wilayah
+    const getNmKec = (kd) => {
+      for (let kab in dataKecamatan) {
+        if (dataKecamatan[kab] && dataKecamatan[kab][kd]) return dataKecamatan[kab][kd];
+      }
+      return kd || "-";
+    };
+
+    const getNmDesa = (kdKec, kdDesa) => {
+      if (dataDesa[kdKec] && dataDesa[kdKec][kdDesa]) return dataDesa[kdKec][kdDesa];
+      return kdDesa || "-";
+    };
+
+    const getNmDsn = (kdKec, kdDesa, kdDsn) => {
+      const dsnMap = getDusunList(kdKec, kdDesa);
+      if (dsnMap && dsnMap[kdDsn]) return dsnMap[kdDsn].nama;
+      return kdDsn || "-";
+    };
+
+    // Header Kolom tetap seragam persis permintaan
+    const headers = [
+      "NO.",
+      "KECAMATAN",
+      "DESA",
+      "DUSUN",
+      "RT",
+      "NAMA SUAMI",
+      "NIK SUAMI",
+      "NAMA ISTRI",
+      "NIK ISTRI",
+      "JENIS ALKON",
+      "JENIS AKSEPTOR",
+      isPelayananKb ? "TANGGAL PELAYANAN" : "TANGGAL RENCANA PELAYANAN"
+    ];
+
+    const rows = cachedAntreanLayanan.map((item, idx) => {
+      const nmKec = getNmKec(item.kode_kec);
+      const nmDesa = getNmDesa(item.kode_kec, item.kode_desa);
+      const nmDsn = getNmDsn(item.kode_kec, item.kode_desa, item.kode_dusun);
+
+      // Pada Tabel Pelayanan KB gunakan alkon realisasi; pada Calon Akseptor gunakan rencana
+      const alkon = isPelayananKb 
+        ? (item.metode_realisasi || item.rencana_metode || "-")
+        : (item.rencana_metode || "-");
+
+      const tgl = isPelayananKb
+        ? (item.tgl_layanan_realisasi || item.tgl_rencana_layanan || "-")
+        : (item.tgl_rencana_layanan || "-");
+
+      return [
+        idx + 1,
+        nmKec,
+        nmDesa,
+        nmDsn,
+        item.kode_rt || "-",
+        item.nama_suami || "-",
+        String(item.nik_suami || "-"),
+        item.nama_istri || "-",
+        String(item.nik_istri || "-"),
+        alkon,
+        item.jenis_akseptor || "-",
+        tgl
+      ];
+    });
+
+    return { judulTabel, filePrefix, headers, rows };
+  }
+
+  // 1. Ekspor Excel (.xlsx) dengan Header Judul Tabel
+  function exportLayananToExcel() {
+    const data = getCleanLayananExportData();
+    if (!data) {
+      Swal.fire("Data Kosong", "Tidak ada data antrean/pelayanan untuk diunduh.", "warning");
+      return;
+    }
+
+    try {
+      const wb = XLSX.utils.book_new();
+
+      // Buat struktur sheet yang diawali Judul Tabel di baris pertama
+      const sheetContent = [
+        [data.judulTabel],
+        [`Tanggal Unduh: ${new Date().toLocaleDateString('id-ID')}`],
+        [], // baris kosong pemisah
+        data.headers,
+        ...data.rows
+      ];
+
+      const ws = XLSX.utils.aoa_to_sheet(sheetContent);
+
+      // Kunci kolom NIK Suami (kolom index 6) dan NIK Istri (index 8) sebagai teks
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = 3; R <= range.e.r; ++R) {
+        for (let C of [6, 8]) {
+          const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+          if (ws[cellRef]) {
+            ws[cellRef].t = 's';
+          }
+        }
+      }
+
+      // Atur lebar kolom agar rapi
+      ws['!cols'] = [
+        { wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 8 },
+        { wch: 22 }, { wch: 20 }, { wch: 22 }, { wch: 20 },
+        { wch: 16 }, { wch: 22 }, { wch: 22 }
+      ];
+
+      const sheetName = data.filePrefix.substring(0, 31);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+      const fileName = `${data.filePrefix}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+    } catch (err) {
+      Swal.fire("Error", "Gagal mengekspor file Excel: " + err.message, "error");
+    }
+  }
+
+  // 2. Ekspor PDF (.pdf) dengan Judul Tabel Jelas
+  function exportLayananToPDF() {
+    const data = getCleanLayananExportData();
+    if (!data) {
+      Swal.fire("Data Kosong", "Tidak ada data antrean/pelayanan untuk diekspor ke PDF.", "warning");
+      return;
+    }
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('landscape', 'pt', 'a4');
+
+      // Judul Utama Tabel
+      doc.setFontSize(14);
+      doc.setTextColor(31, 78, 120);
+      doc.setFont(undefined, 'bold');
+      doc.text(data.judulTabel, 40, 35);
+
+      // Sub-judul
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Waktu Cetak: ${new Date().toLocaleString('id-ID')}`, 40, 50);
+
+      // Render Tabel
+      doc.autoTable({
+        head: [data.headers],
+        body: data.rows,
+        startY: 60,
+        styles: { fontSize: 7.5, cellPadding: 3.5, halign: 'left' },
+        headStyles: { fillColor: [31, 78, 120], textColor: 255, halign: 'center' },
+        columnStyles: {
+          0: { halign: 'center', cellWidth: 25 },
+          4: { halign: 'center', cellWidth: 25 },
+          6: { halign: 'center' },
+          8: { halign: 'center' },
+          9: { halign: 'center', fontStyle: 'bold' },
+          10: { halign: 'center' },
+          11: { halign: 'center' }
+        },
+        theme: 'grid'
+      });
+
+      const fileName = `${data.filePrefix}_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(fileName);
+
+    } catch (err) {
+      Swal.fire("Error", "Gagal mengekspor PDF: " + err.message, "error");
+    }
   }
 
   function exitApp() {
