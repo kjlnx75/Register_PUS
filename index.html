@@ -7395,67 +7395,62 @@ function checkAndLockKbTable() {
   }
 
   function renderAntreanLayananTable() {
-    const tbody = document.getElementById("antreanLayananTbody");
-    tbody.innerHTML = "";
+  const tbody = document.getElementById("antreanLayananTbody");
+  tbody.innerHTML = "";
+  
+  if (cachedAntreanLayanan.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">Tidak ada data antrean pelayanan.</td></tr>`;
+    return;
+  }
 
-    if (cachedAntreanLayanan.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748b;">Tidak ada data antrean pelayanan.</td></tr>`;
-      return;
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  
+  cachedAntreanLayanan.forEach((item, idx) => {
+    const tr = document.createElement("tr");
 
-      <td>
-          <b>${item.nama_istri}</b> (${item.nik_istri || '-' })<br>
-          <small style="color:#64748b;">Suami: ${item.nama_suami || '-'} | ID: ${item.id_pus}</small>
-          ${item.nama_kader ? `<br><span style="background:#fef3c7; color:#92400e; padding:1px 5px; border-radius:3px; font-size:10.5px; font-weight:bold;">Kader: ${item.nama_kader}</span>` : ''}
-        </td>
+    let badgeStatus = "";
+    if (item.status === 'TERDAFTAR') {
+      badgeStatus = `<span style="background:#dbeafe; color:#1d4ed8; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">TERDAFTAR</span>`;
+    } else if (item.status === 'SELESAI') {
+      badgeStatus = `<span style="background:#dcfce7; color:#15803d; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">SELESAI (${item.metode_realisasi || item.rencana_metode})</span>`;
+    } else {
+      badgeStatus = `<span style="background:#fee2e2; color:#b91c1c; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">BATAL</span>`;
     }
 
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-
-    cachedAntreanLayanan.forEach((item, idx) => {
-      const tr = document.createElement("tr");
-
-      let badgeStatus = "";
-      if (item.status === 'TERDAFTAR') {
-        badgeStatus = `<span style="background:#dbeafe; color:#1d4ed8; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">TERDAFTAR</span>`;
-      } else if (item.status === 'SELESAI') {
-        badgeStatus = `<span style="background:#dcfce7; color:#15803d; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">SELESAI (${item.metode_realisasi || item.rencana_metode})</span>`;
-      } else {
-        badgeStatus = `<span style="background:#fee2e2; color:#b91c1c; padding:3px 8px; border-radius:4px; font-weight:bold; font-size:11px;">BATAL</span>`;
-      }
-
-      let aksiHtml = "-";
-      if (item.status === 'TERDAFTAR') {
-        aksiHtml = `
-          <button type="button" class="btn-nav btn-action" style="padding: 4px 8px; font-size: 11px; background-color:#16a34a;" onclick="promptSelesaikanPelayanan('${item.id}', '${item.id_pus}', ${item.tahun}, ${item.bulan_rencana}, '${item.rencana_metode}', '${item.nama_istri}')" title="Catat Tindakan Selesai">
-            💉 Layani
-          </button>
-          <button type="button" class="btn-nav btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="batalkanAntreanLayanan('${item.id}', '${item.nama_istri}')" title="Batalkan Pendaftaran">
-            ❌
-          </button>
-        `;
-      }
-
-      tr.innerHTML = `
-        <td style="text-align:center;">${idx + 1}</td>
-        <td>
-          <b>${item.nama_istri}</b> (${item.nik_istri || '-' })<br>
-          <small style="color:#64748b;">Suami: ${item.nama_suami || '-'} | ID: ${item.id_pus}</small>
-        </td>
-        <td style="text-align:center; font-weight:bold; color:#0284c7;">${item.rencana_metode}</td>
-        <td style="text-align:center;">
-          <b>${monthNames[(item.bulan_rencana || 1) - 1]} ${item.tahun}</b>
-          ${item.tgl_rencana_layanan ? `<br><small style="color:#64748b;">${item.tgl_rencana_layanan}</small>` : ''}
-        </td>
-        <td>
-          <b>${item.faskes_tujuan || '-'}</b>
-          ${item.catatan ? `<br><small style="color:#64748b;">${item.catatan}</small>` : ''}
-        </td>
-        <td style="text-align:center;">${badgeStatus}</td>
-        <td style="text-align:center; white-space:nowrap;">${aksiHtml}</td>
+    let aksiHtml = "-";
+    if (item.status === 'TERDAFTAR') {
+      aksiHtml = `
+        <button type="button" class="btn-nav btn-action" style="padding: 4px 8px; font-size: 11px; background-color:#16a34a;" onclick="promptSelesaikanPelayanan('${item.id}', '${item.id_pus}', ${item.tahun}, ${item.bulan_rencana}, '${item.rencana_metode}', '${item.nama_istri}')" title="Catat Tindakan Selesai">
+          💉 Layani
+        </button>
+        <button type="button" class="btn-nav btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="batalkanAntreanLayanan('${item.id}', '${item.nama_istri}')" title="Batalkan Pendaftaran">
+          ❌
+        </button>
       `;
-      tbody.appendChild(tr);
-    });
-  }
+    }
+    
+    tr.innerHTML = `
+      <td style="text-align:center;">${idx + 1}</td>
+      <td>
+        <b>${item.nama_istri}</b> (${item.nik_istri || '-' })<br>
+        <small style="color:#64748b;">Suami: ${item.nama_suami || '-'} | ID: ${item.id_pus}</small>
+        ${item.nama_kader ? `<br><span style="background:#fef3c7; color:#92400e; padding:1px 5px; border-radius:3px; font-size:10.5px; font-weight:bold;">Kader: ${item.nama_kader}</span>` : ''}
+      </td>
+      <td style="text-align:center; font-weight:bold; color:#0284c7;">${item.rencana_metode}</td>
+      <td style="text-align:center;">
+        <b>${monthNames[(item.bulan_rencana || 1) - 1]} ${item.tahun}</b>
+        ${item.tgl_rencana_layanan ? `<br><small style="color:#64748b;">${item.tgl_rencana_layanan}</small>` : ''}
+      </td>
+      <td>
+        <b>${item.faskes_tujuan || '-'}</b>
+        ${item.catatan ? `<br><small style="color:#64748b;">${item.catatan}</small>` : ''}
+      </td>
+      <td style="text-align:center;">${badgeStatus}</td>
+      <td style="text-align:center; white-space:nowrap;">${aksiHtml}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
   // 2. Pencarian PUS dari Database untuk Didaftarkan
   async function cariPusUntukLayanan() {
