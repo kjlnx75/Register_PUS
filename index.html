@@ -7664,8 +7664,8 @@ function checkAndLockKbTable() {
     let pernahKbSebelumnya = false;
     for (let i = 0; i < 12; i++) {
       let val = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
-      let st = evaluateKbStatus(val);[cite: 1]
-      if (st.type === "PESERTA_KB") {[cite: 1]
+      let st = evaluateKbStatus(val);
+      if (st.type === "PESERTA_KB") {
         pernahKbSebelumnya = true;
         break;
       }
@@ -7676,17 +7676,17 @@ function checkAndLockKbTable() {
     let keterangan = statusTerakhirRaw ? `Status riwayat: ${statusTerakhirRaw}` : "Belum ada riwayat KB tercatat";
 
     if (statusTerakhirRaw) {
-      const parsed = evaluateKbStatus(statusTerakhirRaw);[cite: 1]
+      const parsed = evaluateKbStatus(statusTerakhirRaw);
 
-      if (parsed.type === "PESERTA_KB") {[cite: 1]
+      if (parsed.type === "PESERTA_KB") {
         // Jika metode yang dipilih sama persis dengan metode sebelumnya
-        if (metodeBaru && metodeBaru === parsed.method) {[cite: 1]
+        if (metodeBaru && metodeBaru === parsed.method) {
           hasilDeteksi = "KB ULANGAN";
         } else {
           hasilDeteksi = "GANTI CARA";
         }
-      } else if (parsed.type === "BUKAN_PESERTA") {[cite: 1]
-        if (parsed.reason === "HAMIL") {[cite: 1]
+      } else if (parsed.type === "BUKAN_PESERTA") {
+        if (parsed.reason === "HAMIL") {
           hasilDeteksi = "KB BARU (KBPP)";
         } else if (pernahKbSebelumnya) {
           hasilDeteksi = "KB BARU (PASCA DO)";
