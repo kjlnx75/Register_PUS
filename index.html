@@ -1617,6 +1617,30 @@
     }
   }
 
+  function refreshGreeting() {
+    if (!currentUser) return;
+
+    let namaWilayahDinamis = "";
+    if (userRole.includes("KAB")) {
+      for (let kdProv in dataKabupaten) {
+        if (dataKabupaten[kdProv] && dataKabupaten[kdProv][userKodeKab]) {
+          namaWilayahDinamis = dataKabupaten[kdProv][userKodeKab];
+          break;
+        }
+      }
+      if (!namaWilayahDinamis) namaWilayahDinamis = "LOMBOK BARAT";
+    } else if (userRole.includes("KEC") || userRole === "ADMIN") {
+      if (dataKecamatan[userKodeKab] && dataKecamatan[userKodeKab][userKodeKec]) {
+        namaWilayahDinamis = dataKecamatan[userKodeKab][userKodeKec];
+      }
+    } else {
+      if (dataDesa[userKodeKec] && dataDesa[userKodeKec][userKodeDesa]) {
+        namaWilayahDinamis = dataDesa[userKodeKec][userKodeDesa];
+      }
+    }
+
+    setUserGreeting(userRole, namaWilayahDinamis, currentUser, currentNamaLengkap);
+  }
   
   function setSelectValueCaseInsensitive(selectId, targetValue) {
     const select = document.getElementById(selectId);
@@ -3017,34 +3041,32 @@ function checkAndLockKbTable() {
   }
 }
 
-  function showDashboardView() {
-    // Reset otomatis filter modul-modul laporan saat ditutup / kembali ke dashboard
-    if (typeof resetRecapFilters === "function") resetRecapFilters();
-    if (typeof resetBnbaFilters === "function") resetBnbaFilters();
-    if (typeof resetChartFilters === "function") resetChartFilters();
-    resetInputForm();
+function showDashboardView() {
+  if (typeof resetRecapFilters === "function") resetRecapFilters();
+  if (typeof resetBnbaFilters === "function") resetBnbaFilters();
+  if (typeof resetChartFilters === "function") resetChartFilters();
+  resetInputForm();
 
-    document.getElementById("dashboardSection").style.display = "block";
-    document.getElementById("formSection").style.display = "none";
-    document.getElementById("recapSection").style.display = "none";
-    document.getElementById("bnbaSection").style.display = "none";
-    document.getElementById("chartSection").style.display = "none";
+  document.getElementById("dashboardSection").style.display = "block";
+  document.getElementById("formSection").style.display = "none";
+  document.getElementById("recapSection").style.display = "none";
+  document.getElementById("bnbaSection").style.display = "none";
+  document.getElementById("chartSection").style.display = "none";
 
-    // Visibilitas tombol admin dashboard
-    const adminBox = document.getElementById("adminSyncContainer");
-    const btnTambahTahun = document.getElementById("btnAdminTambahTahun");
+  const adminBox = document.getElementById("adminSyncContainer");
+  const btnTambahTahun = document.getElementById("btnAdminTambahTahun");
 
-    if (adminBox) {
-      adminBox.style.display = (isKabRole() || isKecRole()) ? "block" : "none";
-    }
-    if (btnTambahTahun) {
-      btnTambahTahun.style.display = isKabRole() ? "inline-block" : "none";
-    }
+  if (adminBox) {
+    adminBox.style.display = (isKabRole() || isKecRole()) ? "block" : "none";
+  }
+  if (btnTambahTahun) {
+    btnTambahTahun.style.display = isKabRole() ? "inline-block" : "none";
+  }
 
-    checkPendingMutasiNotifications();
-
-    loadAntreanLayananTable();
-  }  
+  checkPendingMutasiNotifications();
+  if (typeof loadAntreanLayananTable === "function") loadAntreanLayananTable();
+  if (typeof refreshGreeting === "function") refreshGreeting();
+}  
 
   /// =========================================================================
   // FUNGSI INBOX & NOTIFIKASI MUTASI MASUK (BERDIRI SENDIRI DI TOP-LEVEL)
