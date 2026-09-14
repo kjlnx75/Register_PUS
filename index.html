@@ -7638,7 +7638,7 @@ function showDashboardView() {
   let pusTerpilihDataLayanan = null;
 
   function pilihPusUntukLayanan(item) {
-    pusTerpilihDataLayanan = item; // Simpan objek data PUS
+    pusTerpilihDataLayanan = item;
 
     const resultBox = document.getElementById("hasilPencarianPusLayanan");
     if (resultBox) resultBox.style.display = "none";
@@ -7656,8 +7656,11 @@ function showDashboardView() {
     document.getElementById("reg_nama_suami").value = item.nama_suami || "";
     document.getElementById("reg_info_wilayah").value = `Kec. ${item.kecamatan_nama || '-'}, Desa ${item.desa_nama || '-'}, Dusun ${item.dusun_nama || '-'} (RT ${item.kode_rt || '-'})`;
 
-    // Jalankan deteksi jenis akseptor langsung saat PUS dipilih
-    evaluasiOtomatisJenisAkseptor();
+    // Kosongkan metode & jenis akseptor terlebih dahulu
+    document.getElementById("reg_rencana_metode").value = "";
+    document.getElementById("reg_jenis_akseptor").value = "";
+    const infoText = document.getElementById("infoRiwayatKb");
+    if (infoText) infoText.innerText = "Silakan pilih metode kontrasepsi di samping...";
   }
 
   // 2. Fungsi Deteksi Cerdas Jenis Akseptor
