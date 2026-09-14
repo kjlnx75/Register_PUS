@@ -1843,37 +1843,41 @@
   };
 
   async function loadMasterWilayahFromDB() {
-    const { data, error } = await db.from('master_wilayah').select('*');
-    if (error || !data) return;
+    try {
+      const { data, error } = await db.from('master_wilayah').select('*');
+      if (error || !data) return;
 
-    dataProvinsi = {}; dataKabupaten = {}; dataKecamatan = {}; dataDesa = {}; dataDusun = {};
+      dataProvinsi = {}; dataKabupaten = {}; dataKecamatan = {}; dataDesa = {}; dataDusun = {};
 
-    data.forEach(r => {
-      let kdProv = String(r.kode_prov).padStart(2, '0');
-      let kdKab  = String(r.kode_kab).padStart(2, '0');
-      let kdKec  = String(r.kode_kec).padStart(2, '0');
-      let kdDesa = String(r.kode_desa).padStart(4, '0');
-      let kdDsn  = String(r.kode_dusun).padStart(4, '0');
+      data.forEach(r => {
+        let kdProv = String(r.kode_prov || '').padStart(2, '0');
+        let kdKab  = String(r.kode_kab || '').padStart(2, '0');
+        let kdKec  = String(r.kode_kec || '').padStart(2, '0');
+        let kdDesa = String(r.kode_desa || '').padStart(4, '0');
+        let kdDsn  = String(r.kode_dusun || '').padStart(4, '0');
 
-      dataProvinsi[kdProv] = r.provinsi;
-      if (!dataKabupaten[kdProv]) dataKabupaten[kdProv] = {};
-      dataKabupaten[kdProv][kdKab] = r.kabupaten;
-      if (!dataKecamatan[kdKab]) dataKecamatan[kdKab] = {};
-      dataKecamatan[kdKab][kdKec] = r.kecamatan;
-      if (!dataDesa[kdKec]) dataDesa[kdKec] = {};
-      dataDesa[kdKec][kdDesa] = r.desa;
-      
-      let dsnKey = kdKec + "_" + kdDesa;
-      if (!dataDusun[dsnKey]) dataDusun[dsnKey] = {};
-      dataDusun[dsnKey][kdDsn] = { nama: r.dusun, jumlah_rt: r.jumlah_rt || 1 };
-    });
+        dataProvinsi[kdProv] = r.provinsi;
+        if (!dataKabupaten[kdProv]) dataKabupaten[kdProv] = {};
+        dataKabupaten[kdProv][kdKab] = r.kabupaten;
+        if (!dataKecamatan[kdKab]) dataKecamatan[kdKab] = {};
+        dataKecamatan[kdKab][kdKec] = r.kecamatan;
+        if (!dataDesa[kdKec]) dataDesa[kdKec] = {};
+        dataDesa[kdKec][kdDesa] = r.desa;
+        
+        let dsnKey = kdKec + "_" + kdDesa;
+        if (!dataDusun[dsnKey]) dataDusun[dsnKey] = {};
+        dataDusun[dsnKey][kdDsn] = { nama: r.dusun, jumlah_rt: r.jumlah_rt || 1 };
+      });
 
-    const provSelect = document.getElementById("provinsi");
-    if (provSelect) {
-      provSelect.innerHTML = '<option value="">-- PILIH --</option>';
-      for (let kode in dataProvinsi) provSelect.add(new Option(dataProvinsi[kode].toUpperCase(), kode));
+      const provSelect = document.getElementById("provinsi");
+      if (provSelect) {
+        provSelect.innerHTML = '<option value="">-- PILIH --</option>';
+        for (let kode in dataProvinsi) provSelect.add(new Option(dataProvinsi[kode].toUpperCase(), kode));
+      }
+      populateAllKecamatanDropdowns();
+    } catch (err) {
+      console.warn("Gagal memuat master wilayah saat inisialisasi:", err);
     }
-    populateAllKecamatanDropdowns();
   }
 
   // Helper mengecek kelengkapan data wilayah dan identitas PUS
@@ -3332,10 +3336,11 @@ function showDashboardView() {
   }
   
   function updateKabupaten(selectedVal = "") {
-    const kodeProv = document.getElementById("provinsi").value;
+    const kodeProv = document.getElementById("provinsi")?.value || "";
     document.getElementById("kode_prov").value = kodeProv;
     resetDropdown("kabupaten", "kode_kab"); resetDropdown("kecamatan", "kode_kec"); resetDropdown("desa", "kode_desa"); resetDropdown("dusun", "kode_dusun"); resetDropdown("rt", "kode_rt");
-    if (kodeProv && dataKabupaten[kodeProv]) {
+    
+    if (kodeProv && dataKabupaten && dataKabupaten[kodeProv]) {
       const kabSelect = document.getElementById("kabupaten");
       kabSelect.disabled = false;
       for (let kode in dataKabupaten[kodeProv]) kabSelect.add(new Option(dataKabupaten[kodeProv][kode].toUpperCase(), kode));
