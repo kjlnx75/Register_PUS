@@ -1391,21 +1391,30 @@
 
     <!-- TAB 1: DAFTAR ANTREAN & REALISASI LAYANAN -->
     <div id="layananTabAntrean" style="display: block;">
-      <div style="background: #f8fafc; padding: 10px 14px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <span style="font-size: 12px; font-weight: bold; color: #475569;">Pilih Data:</span>
-        <select id="filterStatusLayanan" onchange="loadAntreanLayananTable()" style="padding: 6px; font-size: 12px; border-radius: 4px; border: 1px solid #cbd5e1; width: auto; font-weight: bold;">
-          <option value="TERDAFTAR" selected>Calon Akseptor (Terdaftar)</option>
-          <option value="SELESAI">Pelayanan KB (Selesai Dilayani)</option>
-          <option value="BATAL">Batal</option>
-          <option value="SEMUA">Semua Status</option>
-        </select>
-        <button type="button" class="btn-nav btn-secondary" style="padding: 6px 12px; font-size: 11px;" onclick="loadAntreanLayananTable()">🔄 Segarkan</button>
-
-        <!-- TOMBOL EKSPOR EXCEL & PDF -->
-        <div style="margin-left: auto; display: flex; gap: 6px;">
-          <button type="button" class="btn-nav btn-warning" style="padding: 6px 12px; font-size: 11px;" onclick="exportLayananToExcel()">📥 Ekspor Excel</button>
-          <button type="button" class="btn-nav btn-danger" style="padding: 6px 12px; font-size: 11px;" onclick="exportLayananToPDF()">📄 Ekspor PDF</button>
+      <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
+        
+        <!-- BARIS 1: FILTER STATUS & TOMBOL SEGAR KAN -->
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 12px; font-weight: bold; color: #475569;">Pilih Data:</span>
+          <select id="filterStatusLayanan" onchange="loadAntreanLayananTable()" style="padding: 6px 10px; font-size: 12px; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: bold; flex: 1; min-width: 180px;">
+            <option value="TERDAFTAR" selected>Calon Akseptor (Terdaftar)</option>
+            <option value="SELESAI">Pelayanan KB (Selesai Dilayani)</option>
+            <option value="BATAL">Batal</option>
+            <option value="SEMUA">Semua Status</option>
+          </select>
+          <button type="button" class="btn-nav btn-secondary" style="padding: 6px 12px; font-size: 11px;" onclick="loadAntreanLayananTable()">🔄 Segarkan</button>
         </div>
+
+        <!-- BARIS 2: TOMBOL DOWNLOAD EXCEL & PDF (PASTI TERLIHAT) -->
+        <div style="display: flex; gap: 8px; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+          <button type="button" class="btn-nav btn-warning" style="flex: 1; justify-content: center; padding: 8px 12px; font-size: 12px; font-weight: bold;" onclick="exportLayananToExcel()">
+            📥 Ekspor Excel (.xlsx)
+          </button>
+          <button type="button" class="btn-nav btn-danger" style="flex: 1; justify-content: center; padding: 8px 12px; font-size: 12px; font-weight: bold;" onclick="exportLayananToPDF()">
+            📄 Ekspor PDF (.pdf)
+          </button>
+        </div>
+
       </div>
 
       <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
