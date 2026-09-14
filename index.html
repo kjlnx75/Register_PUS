@@ -7481,9 +7481,11 @@ function showDashboardView() {
     }
 
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    const fallbackYear = parseInt(document.getElementById("tahun_input")?.value || new Date().getFullYear(), 10);
     
     cachedAntreanLayanan.forEach((item, idx) => {
       const tr = document.createElement("tr");
+      const itemYear = item.tahun || fallbackYear;
 
       let badgeStatus = "";
       if (item.status === 'TERDAFTAR') {
@@ -7497,7 +7499,7 @@ function showDashboardView() {
       let aksiHtml = "-";
       if (item.status === 'TERDAFTAR') {
         aksiHtml = `
-          <button type="button" class="btn-nav btn-action" style="padding: 4px 8px; font-size: 11px; background-color:#16a34a;" onclick="promptSelesaikanPelayanan('${item.id}', '${item.id_pus}', ${item.tahun}, ${item.bulan_rencana}, '${item.rencana_metode}', '${item.nama_istri}')" title="Catat Tindakan Selesai">
+          <button type="button" class="btn-nav btn-action" style="padding: 4px 8px; font-size: 11px; background-color:#16a34a;" onclick="promptSelesaikanPelayanan('${item.id}', '${item.id_pus}', ${itemYear}, ${item.bulan_rencana || 1}, '${item.rencana_metode}', '${item.nama_istri}')" title="Catat Tindakan Selesai">
             💉 Layani
           </button>
           <button type="button" class="btn-nav btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="batalkanAntreanLayanan('${item.id}', '${item.nama_istri}')" title="Batalkan Pendaftaran">
@@ -7519,9 +7521,8 @@ function showDashboardView() {
           ${item.jenis_akseptor ? `<br><span style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:1px 5px; border-radius:3px; font-size:10px; font-weight:700;">${item.jenis_akseptor}</span>` : ''}
         </td>
         
-        <td style="text-align:center; font-weight:bold; color:#0284c7;">${item.rencana_metode}</td>
         <td style="text-align:center;">
-          <b>${monthNames[(item.bulan_rencana || 1) - 1]} ${item.tahun}</b>
+          <b>${monthNames[(item.bulan_rencana || 1) - 1]} ${itemYear}</b>
           ${item.tgl_rencana_layanan ? `<br><small style="color:#64748b;">${item.tgl_rencana_layanan}</small>` : ''}
         </td>
         <td>
