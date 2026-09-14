@@ -1476,10 +1476,13 @@
             Rencana Pelayanan & Tindakan KB
           </div>
 
+          <!-- Baris 1: Metode Kontrasepsi & Jenis Akseptor -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
             <div>
-              <label for="reg_rencana_metode" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Metode Kontrasepsi <span style="color: #ef4444;">*</span></label>
-              <select id="reg_rencana_metode" required style="border: 1px solid #94a3b8; font-weight: 600; color: #0369a1;">
+              <label for="reg_rencana_metode" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Metode Kontrasepsi <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reg_rencana_metode" onchange="evaluasiOtomatisJenisAkseptor()" required style="border: 1px solid #94a3b8; font-weight: 600; color: #0369a1;">
                 <option value="">-- PILIH METODE --</option>
                 <option value="IMPLAN">IMPLAN</option>
                 <option value="IUD">IUD</option>
@@ -1490,9 +1493,30 @@
                 <option value="MOP">MOP</option>
               </select>
             </div>
+
             <div>
-              <label for="reg_bulan_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Bulan Pelayanan <span style="color: #ef4444;">*</span></label>
-              <select id="reg_bulan_rencana" required style="border: 1px solid #94a3b8; font-weight: 600;">
+              <label for="reg_jenis_akseptor" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Jenis Akseptor <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reg_jenis_akseptor" required style="border: 1px solid #94a3b8; font-weight: 700; color: #166534; background: #f0fdf4;">
+                <option value="">-- DETEKSI / PILIH JENIS --</option>
+                <option value="KB BARU (MURNI)">KB BARU (MURNI)</option>
+                <option value="KB BARU (KBPP)">KB BARU (KBPP / PASCA SALIN)</option>
+                <option value="KB BARU (PASCA DO)">KB BARU (PASCA DROP OUT)</option>
+                <option value="GANTI CARA">GANTI CARA</option>
+                <option value="KB ULANGAN">KB ULANGAN</option>
+              </select>
+              <small id="infoRiwayatKb" style="color: #64748b; font-size: 10.5px; display: block; margin-top: 2px;"></small>
+            </div>
+          </div>
+
+          <!-- Baris 2: Bulan Pelayanan & Tanggal Rencana -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
+            <div>
+              <label for="reg_bulan_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Bulan Pelayanan <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reg_bulan_rencana" onchange="evaluasiOtomatisJenisAkseptor()" required style="border: 1px solid #94a3b8; font-weight: 600;">
                 <option value="1">JANUARI</option>
                 <option value="2">FEBRUARI</option>
                 <option value="3">MARET</option>
@@ -1507,26 +1531,36 @@
                 <option value="12">DESEMBER</option>
               </select>
             </div>
-          </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
             <div>
-              <label for="reg_tgl_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Tanggal Rencana Tindakan:</label>
+              <label for="reg_tgl_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Tanggal Rencana Tindakan:
+              </label>
               <input type="date" id="reg_tgl_rencana" style="border: 1px solid #94a3b8;">
             </div>
-            <div>
-              <label for="reg_faskes_tujuan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Tempat / Fasilitas Pelayanan:</label>
-              <input type="text" id="reg_faskes_tujuan" placeholder="CONTOH: PUSKESMAS / BAKSOS KB" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase;">
-            </div>
           </div>
 
+          <!-- Baris 3: Fasilitas Pelayanan -->
           <div style="margin-bottom: 14px;">
-            <label for="reg_nama_kader" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Nama Kader / Petugas Pendamping <span style="color: #ef4444;">*</span></label>
+            <label for="reg_faskes_tujuan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+              Tempat / Fasilitas Pelayanan:
+            </label>
+            <input type="text" id="reg_faskes_tujuan" placeholder="CONTOH: PUSKESMAS / BAKSOS KB" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase;">
+          </div>
+
+          <!-- Baris 4: Nama Kader -->
+          <div style="margin-bottom: 14px;">
+            <label for="reg_nama_kader" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+              Nama Kader / Petugas Pendamping <span style="color: #ef4444;">*</span>
+            </label>
             <input type="text" id="reg_nama_kader" required placeholder="NAMA LENGKAP KADER PENDAMPING" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase; font-weight: 600;">
           </div>
 
+          <!-- Baris 5: Catatan Tambahan -->
           <div>
-            <label for="reg_catatan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Catatan Tambahan:</label>
+            <label for="reg_catatan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+              Catatan Tambahan:
+            </label>
             <input type="text" id="reg_catatan" placeholder="Catatan medis/keluhan/riwayat KB sebelumnya (opsional)" style="border: 1px solid #94a3b8; text-transform: none;">
           </div>
         </div>
@@ -7601,21 +7635,85 @@ function showDashboardView() {
     });
   }
 
-  function pilihPusUntukLayanan(item) {
-    document.getElementById("hasilPencarianPusLayanan").style.display = "none";
-    document.getElementById("cariPusLayananInput").value = item.nama_istri;
+  let pusTerpilihDataLayanan = null;
 
-    document.getElementById("reg_id_pus").value = item.id_pus;
-    document.getElementById("reg_tahun").value = item.tahun;
-    document.getElementById("reg_kode_kec").value = item.kode_kec;
-    document.getElementById("reg_kode_desa").value = item.kode_desa;
-    document.getElementById("reg_kode_dusun").value = item.kode_dusun;
+// 1. Simpan objek PUS saat diklik dari hasil pencarian
+function pilihPusUntukLayanan(item) {
+  pusTerpilihDataLayanan = item; // Simpan data PUS
 
-    document.getElementById("reg_nama_istri").value = item.nama_istri;
-    document.getElementById("reg_nik_istri").value = item.nik_istri;
-    document.getElementById("reg_nama_suami").value = item.nama_suami;
-    document.getElementById("reg_info_wilayah").value = `Kec. ${item.kecamatan_nama}, Desa ${item.desa_nama}, Dusun ${item.dusun_nama || '-'} (RT ${item.kode_rt})`;
+  document.getElementById("hasilPencarianPusLayanan").style.display = "none";
+  document.getElementById("cariPusLayananInput").value = item.nama_istri;
+
+  document.getElementById("reg_id_pus").value = item.id_pus;
+  document.getElementById("reg_tahun").value = item.tahun;
+  document.getElementById("reg_kode_kec").value = item.kode_kec;
+  document.getElementById("reg_kode_desa").value = item.kode_desa;
+  document.getElementById("reg_kode_dusun").value = item.kode_dusun;
+
+  document.getElementById("reg_nama_istri").value = item.nama_istri;
+  document.getElementById("reg_nik_istri").value = item.nik_istri;
+  document.getElementById("reg_nama_suami").value = item.nama_suami;
+  document.getElementById("reg_info_wilayah").value = `Kec. ${item.kecamatan_nama}, Desa ${item.desa_nama}, Dusun ${item.dusun_nama || '-'} (RT ${item.kode_rt})`;
+
+  evaluasiOtomatisJenisAkseptor();
+}
+
+function evaluasiOtomatisJenisAkseptor() {
+  if (!pusTerpilihDataLayanan) return;
+
+  const metodeBaru = (document.getElementById("reg_rencana_metode")?.value || "").trim().toUpperCase();
+  const bulanRencana = parseInt(document.getElementById("reg_bulan_rencana")?.value || (new Date().getMonth() + 1), 10);
+  const infoText = document.getElementById("infoRiwayatKb");
+  const jenisSelect = document.getElementById("reg_jenis_akseptor");
+
+  const mKeys = ["kb_jan", "kb_feb", "kb_mar", "kb_apr", "kb_mei", "kb_jun", "kb_jul", "kb_agu", "kb_sep", "kb_okt", "kb_nov", "kb_des"]; //
+
+  // Cari status aktif terakhir sebelum bulan rencana
+  let statusTerakhir = "";
+  let everKb = false;
+  let consecutiveNonKb = 0;
+
+  for (let i = bulanRencana - 2; i >= 0; i--) {
+    let raw = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
+    if (raw && raw !== "-" && raw !== "--KOSONG--") {
+      statusTerakhir = raw;
+      break;
+    }
   }
+
+  // Cek apakah pernah ber-KB sama sekali
+  for (let i = 0; i < bulanRencana - 1; i++) {
+    let raw = String(pusTerpilihDataLayanan[mKeys[i]] || "").trim().toUpperCase();
+    let parsed = evaluateKbStatus(raw); //[cite: 1]
+    if (parsed.type === "PESERTA_KB") { //[cite: 1]
+      everKb = true;
+    }
+  }
+
+  let hasilDeteksi = "KB BARU (MURNI)";
+  let infoRiwayat = statusTerakhir ? `Status terakhir: ${statusTerakhir}` : "Belum ada riwayat KB tahun ini";
+
+  const statusEval = evaluateKbStatus(statusTerakhir); //[cite: 1]
+
+  if (statusEval.type === "PESERTA_KB") { //[cite: 1]
+    if (metodeBaru && metodeBaru === statusEval.method) { //[cite: 1]
+      hasilDeteksi = "KB ULANGAN";
+    } else {
+      hasilDeteksi = "GANTI CARA";
+    }
+  } else if (statusEval.type === "BUKAN_PESERTA") { //[cite: 1]
+    if (statusEval.reason === "HAMIL") { //[cite: 1]
+      hasilDeteksi = "KB BARU (KBPP)";
+    } else if (everKb) {
+      hasilDeteksi = "KB BARU (PASCA DO)";
+    } else {
+      hasilDeteksi = "KB BARU (MURNI)";
+    }
+  }
+
+  jenisSelect.value = hasilDeteksi;
+  if (infoText) infoText.innerText = `💡 Terdeteksi: ${hasilDeteksi} (${infoRiwayat})`;
+}
 
   function resetFormPendaftaranLayanan() {
     document.getElementById("formPendaftaranLayanan").reset();
@@ -7657,6 +7755,12 @@ function showDashboardView() {
     if (!rencanaMetode) {
       errors.push("Metode Kontrasepsi belum dipilih");
     }
+
+    const jenisAkseptor = (document.getElementById("reg_jenis_akseptor")?.value || "").trim();
+    if (!jenisAkseptor) {
+      errors.push("Jenis Akseptor belum dipilih");
+    }
+    
     if (!bulanRencana) {
       errors.push("Bulan Pelayanan belum dipilih");
     }
