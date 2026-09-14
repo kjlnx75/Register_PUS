@@ -1477,41 +1477,47 @@
             Rencana Pelayanan & Tindakan KB
           </div>
 
+          <!-- Baris 1: Metode Kontrasepsi & Jenis Akseptor -->
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
-          <div>
-            <label for="reg_rencana_metode" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
-              Metode Kontrasepsi <span style="color: #ef4444;">*</span>
-            </label>
-            <select id="reg_rencana_metode" onchange="evaluasiOtomatisJenisAkseptor()" required style="border: 1px solid #94a3b8; font-weight: 600; color: #0369a1;">
-              <option value="">-- PILIH METODE --</option>
-              <option value="IMPLAN">IMPLAN</option>
-              <option value="IUD">IUD</option>
-              <option value="SUNTIK">SUNTIK</option>
-              <option value="PIL">PIL</option>
-              <option value="KONDOM">KONDOM</option>
-              <option value="MOW">MOW</option>
-              <option value="MOP">MOP</option>
-            </select>
+            <div>
+              <label for="reg_rencana_metode" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Metode Kontrasepsi <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reg_rencana_metode" onchange="evaluasiOtomatisJenisAkseptor()" required style="border: 1px solid #94a3b8; font-weight: 600; color: #0369a1;">
+                <option value="">-- PILIH METODE --</option>
+                <option value="IMPLAN">IMPLAN</option>
+                <option value="IUD">IUD</option>
+                <option value="SUNTIK">SUNTIK</option>
+                <option value="PIL">PIL</option>
+                <option value="KONDOM">KONDOM</option>
+                <option value="MOW">MOW</option>
+                <option value="MOP">MOP</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="reg_jenis_akseptor" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Jenis Akseptor <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reg_jenis_akseptor" required style="border: 1px solid #94a3b8; font-weight: 700; color: #166534; background: #f0fdf4;">
+                <option value="">-- DETEKSI / PILIH JENIS --</option>
+                <option value="KB BARU (MURNI)">KB BARU (MURNI)</option>
+                <option value="KB BARU (KBPP)">KB BARU (KBPP / PASCA SALIN)</option>
+                <option value="KB BARU (PASCA DO)">KB BARU (PASCA DROP OUT)</option>
+                <option value="GANTI CARA">GANTI CARA</option>
+                <option value="KB ULANGAN">KB ULANGAN</option>
+              </select>
+              <small id="infoRiwayatKb" style="color: #64748b; font-size: 10.5px; display: block; margin-top: 2px;"></small>
+            </div>
           </div>
 
-          <div>
-            <label for="reg_jenis_akseptor" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
-              Jenis Akseptor <span style="color: #ef4444;">*</span>
-            </label>
-            <select id="reg_jenis_akseptor" required style="border: 1px solid #94a3b8; font-weight: 700; color: #166534; background: #f0fdf4;">
-              <option value="">-- DETEKSI / PILIH JENIS --</option>
-              <option value="KB BARU (MURNI)">KB BARU (MURNI)</option>
-              <option value="KB BARU (KBPP)">KB BARU (KBPP / PASCA SALIN)</option>
-              <option value="KB BARU (PASCA DO)">KB BARU (PASCA DROP OUT)</option>
-              <option value="GANTI CARA">GANTI CARA</option>
-              <option value="KB ULANGAN">KB ULANGAN</option>
-            </select>
-            <small id="infoRiwayatKb" style="color: #64748b; font-size: 10.5px; display: block; margin-top: 2px;"></small>
-          </div>
-        </div>
+          <!-- Baris 2: Bulan Pelayanan & Tanggal Rencana -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
             <div>
-              <label for="reg_bulan_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Bulan Pelayanan <span style="color: #ef4444;">*</span></label>
-              <select id="reg_bulan_rencana" required style="border: 1px solid #94a3b8; font-weight: 600;">
+              <label for="reg_bulan_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Bulan Pelayanan <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reg_bulan_rencana" onchange="evaluasiOtomatisJenisAkseptor()" required style="border: 1px solid #94a3b8; font-weight: 600;">
                 <option value="1">JANUARI</option>
                 <option value="2">FEBRUARI</option>
                 <option value="3">MARET</option>
@@ -1526,26 +1532,36 @@
                 <option value="12">DESEMBER</option>
               </select>
             </div>
-          </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 14px;">
             <div>
-              <label for="reg_tgl_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Tanggal Rencana Tindakan:</label>
+              <label for="reg_tgl_rencana" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+                Tanggal Rencana Tindakan:
+              </label>
               <input type="date" id="reg_tgl_rencana" style="border: 1px solid #94a3b8;">
             </div>
-            <div>
-              <label for="reg_faskes_tujuan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Tempat / Fasilitas Pelayanan:</label>
-              <input type="text" id="reg_faskes_tujuan" placeholder="CONTOH: PUSKESMAS / BAKSOS KB" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase;">
-            </div>
           </div>
 
+          <!-- Baris 3: Fasilitas Pelayanan -->
           <div style="margin-bottom: 14px;">
-            <label for="reg_nama_kader" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Nama Kader / Petugas Pendamping <span style="color: #ef4444;">*</span></label>
+            <label for="reg_faskes_tujuan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+              Tempat / Fasilitas Pelayanan:
+            </label>
+            <input type="text" id="reg_faskes_tujuan" placeholder="CONTOH: PUSKESMAS / BAKSOS KB" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase;">
+          </div>
+
+          <!-- Baris 4: Nama Kader -->
+          <div style="margin-bottom: 14px;">
+            <label for="reg_nama_kader" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+              Nama Kader / Petugas Pendamping <span style="color: #ef4444;">*</span>
+            </label>
             <input type="text" id="reg_nama_kader" required placeholder="NAMA LENGKAP KADER PENDAMPING" oninput="this.value = this.value.toUpperCase()" style="border: 1px solid #94a3b8; text-transform: uppercase; font-weight: 600;">
           </div>
 
+          <!-- Baris 5: Catatan Tambahan -->
           <div>
-            <label for="reg_catatan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">Catatan Tambahan:</label>
+            <label for="reg_catatan" style="display: block; font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 4px; text-transform: uppercase;">
+              Catatan Tambahan:
+            </label>
             <input type="text" id="reg_catatan" placeholder="Catatan medis/keluhan/riwayat KB sebelumnya (opsional)" style="border: 1px solid #94a3b8; text-transform: none;">
           </div>
         </div>
@@ -7352,16 +7368,33 @@ function checkAndLockKbTable() {
   let cachedAntreanLayanan = [];
 
   function openPelayananKbModal() {
-    document.getElementById("modalPelayananKb").style.display = "block";
-    switchLayananTab('antrean');
-    
+    // 1. Tampilkan kontainer modal
+    const modal = document.getElementById("modalPelayananKb");
+    if (modal) {
+      modal.style.display = "block";
+    }
+
+    // 2. Arahkan tab default ke tab antrean pelayanan
+    if (typeof switchLayananTab === "function") {
+      switchLayananTab('antrean');
+    }
+
+    // 3. Reset form pendaftaran agar bersih saat dibuka kembali
+    if (typeof resetFormPendaftaranLayanan === "function") {
+      resetFormPendaftaranLayanan();
+    }
+
+    // 4. Set bulan rencana default ke bulan berjalan
     const currentMonth = new Date().getMonth() + 1;
     const blnEl = document.getElementById("reg_bulan_rencana");
-    if (blnEl) blnEl.value = String(currentMonth);
-    
+    if (blnEl) {
+      blnEl.value = String(currentMonth);
+    }
+
+    // 5. Pastikan box Nama Kader benar-benar kosong (tidak mengambil username/nama login)
     const kaderInput = document.getElementById("reg_nama_kader");
-    if (kaderInput && !kaderInput.value) {
-      kaderInput.value = (currentNamaLengkap || currentUser || "").toUpperCase();
+    if (kaderInput) {
+      kaderInput.value = "";
     }
   }
 
